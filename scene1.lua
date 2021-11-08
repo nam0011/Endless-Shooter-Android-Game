@@ -14,6 +14,43 @@ background.x = display.contentCenterX
 background.y = display.contentCenterY
 background:toBack()
 
+--define sprite frames
+local opt =
+{
+frames = {
+		--Idle pose-
+		{ x = 23, y = 35, width = 209, height = 168}, --frame 1
+		{ x = 282, y = 35, width = 206, height = 170}, --frame 2
+		--right turn pose
+		{ x = 539, y = 32, width = 207, height = 174}, --frame 3
+		{ x = 797, y = 32, width = 203, height = 176} --frame 4
+      --more to come
+			
+  }
+}
+
+-- include sprite image sheet
+local sheet = graphics.newImageSheet( "SF01a_strip60.png", opt);
+
+--set the frames for the animation of each of the 6 poses
+local seqData = {
+	{name = "idle", frames={1,2}, time=500},
+	--{name = "right", frames={5, 6, 7, 8, 9}, time = 500, loopCount =1},
+	--{name = "left", frames={10, 11, 12}, time = 500, loopCount =1}
+}
+
+-- set sprite animation and initial state
+local anim = display.newSprite (sheet, seqData);
+anim.anchorX = display.contentCenterX;
+anim.anchorY = display.viewableContentHeight-60;
+anim.x = display.contentCenterX+25;
+anim.y = display.viewableContentHeight-30;
+anim.xScale = 0.2;
+anim.yScale = 0.2;
+anim:setSequence("idle");
+--play animation based on selected frames
+anim:play();
+
 --initialize text for current score
 local options = 
 {
