@@ -55,7 +55,13 @@ function scene:create( event )
    )
    --add button to scene group
    sceneGroup:insert(buttonPlay);
-  
+
+   --set effects for scene transition
+   local options = {
+      effect = "slideDown",
+      time = 100
+   }
+
    --scene2 called on button click
    local function back (event)
       composer.gotoScene("scene1", options);

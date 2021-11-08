@@ -170,8 +170,7 @@ function scene:create( event )
 
 end  --end create scene
 
---open overlay
-composer.gotoScene("scene2", options);
+
 
 ---------------------------------------------------------------------------------------------------
 -- Updating whatever, may not need
