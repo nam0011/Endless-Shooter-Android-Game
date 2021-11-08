@@ -24,7 +24,7 @@ function scene:create( event )
    -- Create the object
 
    --background is a large rounded rectangle
-   local background = display.newRoundedRect(display.contentCenterX,display.contentCenterY,display.contentWidth,display.actualContentHeight, 12);
+   local background = display.newRoundedRect(display.contentCenterX,display.contentCenterY,display.viewableContentWidth+100,display.actualContentHeight, 12);
    background.strokeWidth = 2
    background:setFillColor( 0.5 )
    background:setStrokeColor( 0.5, 0.5, 0.5 )
@@ -34,34 +34,34 @@ function scene:create( event )
    sceneGroup:insert(background);
 
    --button to close scene and go back to previous scene
-   local buttonBack = widget.newButton(
+   local buttonPlay = widget.newButton(
      {
-        left = display.contentCenterX-12,
-        top = display.safeScreenOriginY+3,
-        id = "back",
-        label = "x",
+        left = display.contentCenterX-50,
+        top = display.contentCenterY-30,
+        id = "play",
+        label = "PLAY",
         labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
         onEvent = handleKickEvent,
         emboss = true,
         -- Properties for a rounded rectangle button
         shape = "roundedRect",
-        width = 30,
-        height = 30,
+        width = 120,
+        height = 60,
         cornerRadius = 4,
         fillColor = { default={0.4,0.4,0.4,1}, over={ 0.8, 0.8, 0.8 ,0.4} },
-        strokeColor = { default={0.6,0.5,0.5,1}, over={0.8,0.8,1,1} },
+        --strokeColor = { default={0.6,0.5,0.5,1}, over={0.8,0.8,1,1} },
         strokeWidth = 2
      }
    )
    --add button to scene group
-   sceneGroup:insert(buttonBack);
+   sceneGroup:insert(buttonPlay);
   
    --scene2 called on button click
    local function back (event)
       composer.gotoScene("scene1", options);
    end
    --listen for button click
-   buttonBack:addEventListener("tap", back);
+   buttonPlay:addEventListener("tap", back);
    
 end
 
@@ -92,7 +92,7 @@ function scene:hide( event )
       -- Called when the scene is on screen (but is about to go off screen).
       -- Insert code here to "pause" the scene.
       -- Example: stop timers, stop animation, stop audio, etc.
-      timer.cancel(timer2)
+      --timer.cancel(timer2)
    elseif ( phase == "did" ) then
       -- Called immediately after scene goes off screen.
       transition.cancelAll()

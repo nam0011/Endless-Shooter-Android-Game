@@ -7,13 +7,16 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
---set background image
-local background = display.newImageRect( "background.png",
-               (display.viewableContentWidth*1.2), display.viewableContentHeight)
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-background:toBack()
 
+
+--globals
+best = 0
+--locals
+local score = 27
+
+--separating for OO requirements later
+---------------------------------------------------------------------------------------------------
+-- Sprites
 --define sprite frames
 local opt =
 {
@@ -44,15 +47,27 @@ local anim = display.newSprite (sheet, seqData);
 anim.anchorX = display.contentCenterX;
 anim.anchorY = display.viewableContentHeight-60;
 anim.x = display.contentCenterX+25;
-anim.y = display.viewableContentHeight-30;
-anim.xScale = 0.2;
-anim.yScale = 0.2;
+anim.y = display.viewableContentHeight-70;
+anim.xScale = 0.15;
+anim.yScale = 0.15;
 anim:setSequence("idle");
 --play animation based on selected frames
+anim:toBack()
 anim:play();
 
+---------------------------------------------------------------------------------------------------
+
+--set background image
+local background = display.newImageRect( "background.png",
+               (display.viewableContentWidth*1.2), display.viewableContentHeight)
+background.x = display.contentCenterX
+background.y = display.contentCenterY
+background:toBack()
+
+---------------------------------------------------------------------------------------------------
+-- Scoring Text
 --initialize text for current score
-local options = 
+local header = 
 {
     text = "Score:",     
     x = display.viewableContentWidth/10,
@@ -62,10 +77,10 @@ local options =
     fontSize = 16,
     align = "left"  -- Alignment parameter
 } 
-scoreLabel = display.newText( options )
+scoreLabel = display.newText( header )
 
 --initialize text for high score
-options = 
+header = 
 {
     text = "High Score:",     
     x = display.viewableContentWidth-60,
@@ -75,14 +90,11 @@ options =
     fontSize = 16,
     align = "right"  -- Alignment parameter
 }
-highscoreLabel = display.newText(options)
+highscoreLabel = display.newText(header)
 
---globals
-score = 27
-best = 0
-delayOrigin = 20
-delay = 20
 
+---------------------------------------------------------------------------------------------------
+-- Create Scene
 --create initial scene
 function scene:create( event )
    local sceneGroup = self.view
@@ -92,7 +104,7 @@ function scene:create( event )
 	    {
 			x = (display.viewableContentWidth/10)-30,
 			y = display.viewableContentHeight-60,
-         id = "options",
+         id = "left",
          --label = "<",
          labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
          onEvent = handleKickEvent,
@@ -107,6 +119,7 @@ function scene:create( event )
 	)
 	--set transparency
 	buttonLeft.alpha = 0.1
+	buttonLeft:toBack()
 	--add button to sceneGroup
 	sceneGroup:insert(buttonLeft);
 
@@ -115,7 +128,7 @@ function scene:create( event )
 	    {
 			x = display.viewableContentWidth-20,
 			y = display.viewableContentHeight-60,
-         id = "options",
+         id = "right",
          --label = "<",
          labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
          onEvent = handleKickEvent,
@@ -130,6 +143,7 @@ function scene:create( event )
 	)
 	--set transparency
 	buttonRight.alpha = 0.1
+	buttonRight:toBack()
 	--add button to sceneGroup
 	sceneGroup:insert(buttonRight);
 
@@ -146,19 +160,28 @@ function scene:create( event )
       time = 100
    }
 
-   --scene2 called on button click
-   local function next (event)
+   --scene2 call on game over
+   local function gameOver (event)
      composer.gotoScene("scene2", options);
    end
    --listen for button click
-   buttonLeft:addEventListener("tap", next);
+   --buttonLeft:addEventListener("tap", next);
+
 
 end  --end create scene
 
+--open overlay
+composer.gotoScene("scene2", options);
+
+---------------------------------------------------------------------------------------------------
+-- Updating whatever, may not need
 --update if needed
 function update()
 
 end
+
+---------------------------------------------------------------------------------------------------
+-- Events
 
 --show scene
 function scene:show( event )
@@ -170,7 +193,7 @@ function scene:show( event )
    	
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
-   	timer1 = timer.performWithDelay(delay,update,0)
+   	--timer1 = timer.performWithDelay(delay,update,0)
    end
 end
  
@@ -182,7 +205,7 @@ function scene:hide( event )
  
    if ( phase == "will" ) then
    	--cancel timer before moving to next scene
-   	timer.cancel(timer1)
+   	--timer.cancel(timer1)
    elseif ( phase == "did" ) then
 
    end
