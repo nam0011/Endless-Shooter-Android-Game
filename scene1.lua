@@ -4,6 +4,8 @@
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
 
+local physics = require( "physics" )
+physics.start()
 local composer = require( "composer" )
 local scene = composer.newScene()
 
@@ -11,8 +13,16 @@ local scene = composer.newScene()
 
 --globals
 best = 0
+delay = 50
 --locals
-local score = 27
+local score = 0
+local life = 1;
+--local timerRef = timer.performWithDelay( 
+--1000, 
+--function() 
+--end, 
+--0 
+--)
 
 --separating for OO requirements later
 ---------------------------------------------------------------------------------------------------
@@ -170,6 +180,32 @@ function scene:create( event )
 
 end  --end create scene
 
+---------------------------------------------------------------------------------------------------
+-- raindrops
+--physics.start()
+local function rain (event)
+	if (life==0) then return end;
+	local drop = display.newRect(math.random(0, display.contentWidth), 0, 5, 20);
+	physics.addBody ( drop, "dynamic" );
+	drop:setFillColor (math.random(), math.random(), 0.5);	
+	drop:applyForce(0,1, drop.x, drop.y);
+	drop.isSensor = true;
+
+	local timeVal = 1500;
+	local function dropHandler (event)
+		if (event.phase == "ended") then
+			event.target:removeEventListener("collision", dropHandler);
+			event.target:removeSelf();
+			event.target = nil;
+			if (timeVal > 0) then
+				timeVal = timeVal - 10
+			end
+			timer.performWithDelay(timeVal, rain, 0);
+		end
+	end
+	drop:addEventListener("collision", dropHandler);
+
+end
 
 
 ---------------------------------------------------------------------------------------------------
@@ -181,7 +217,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 -- Events
-
+local timer1 = timer.performWithDelay(delay, rain, 0)
 --show scene
 function scene:show( event )
  
@@ -189,10 +225,11 @@ function scene:show( event )
    local phase = event.phase
  
    if ( phase == "will" ) then
-   	
+   	--physics.start()
+
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
-   	--timer1 = timer.performWithDelay(delay,update,0)
+   	timer1 = timer.performWithDelay(delay,rain,0)
    end
 end
  
@@ -204,7 +241,8 @@ function scene:hide( event )
  
    if ( phase == "will" ) then
    	--cancel timer before moving to next scene
-   	--timer.cancel(timer1)
+   	timer.cancel(timer1)
+   	--physics.stop()
    elseif ( phase == "did" ) then
 
    end
@@ -220,5 +258,5 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
-
+--local timer1 = timer.performWithDelay(30, update, 0)
 return scene
