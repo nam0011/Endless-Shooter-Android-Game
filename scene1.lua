@@ -6,6 +6,7 @@
 
 local physics = require( "physics" )
 physics.start()
+physics.setGravity( 0, 3 )
 local composer = require( "composer" )
 local scene = composer.newScene()
 
@@ -13,7 +14,7 @@ local scene = composer.newScene()
 
 --globals
 best = 0
-delay = 50
+delay = 90
 --locals
 local score = 0
 local life = 1;
@@ -182,13 +183,12 @@ end  --end create scene
 
 ---------------------------------------------------------------------------------------------------
 -- raindrops
---physics.start()
 local function rain (event)
 	if (life==0) then return end;
 	local drop = display.newRect(math.random(0, display.contentWidth), 0, 5, 20);
-	physics.addBody ( drop, "dynamic" );
+	physics.addBody ( drop, { density=1, friction=2, bounce=0 }, "dynamic" );--( crate, { density=3.0, friction=0.5, bounce=0.3 } )
 	drop:setFillColor (math.random(), math.random(), 0.5);	
-	drop:applyForce(0,1, drop.x, drop.y);
+	drop:applyForce(0,-1, drop.x, drop.y);
 	drop.isSensor = true;
 
 	local timeVal = 1500;
@@ -200,7 +200,7 @@ local function rain (event)
 			if (timeVal > 0) then
 				timeVal = timeVal - 10
 			end
-			timer.performWithDelay(timeVal, rain, 0);
+			--timer.performWithDelay(timeVal, rain, 0);
 		end
 	end
 	drop:addEventListener("collision", dropHandler);
