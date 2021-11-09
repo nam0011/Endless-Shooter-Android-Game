@@ -62,9 +62,25 @@ anim.y = display.viewableContentHeight-70;
 anim.xScale = 0.15;
 anim.yScale = 0.15;
 anim:setSequence("idle");
+physics.addBody( anim, "kinematic", {bounce=0, radius=20} );
+anim.isSensor = true;
 --play animation based on selected frames
 anim:toBack()
 anim:play();
+
+local function onLocalCollision( self, event )
+	if ( event.phase == "began" ) then
+		print( ": collision began "  )
+		--.. event.other.enemyname )
+	elseif ( event.phase == "ended" ) then
+		--print( self.myname .. ": collision ended with "  )
+		--.. event.other.enemyname )
+	end
+end
+anim.collision = onLocalCollision
+anim:addEventListener( "collision" )
+--crate2.collision = onLocalCollision
+--crate2:addEventListener( "collision" )
 
 ---------------------------------------------------------------------------------------------------
 
