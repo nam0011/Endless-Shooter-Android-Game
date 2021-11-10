@@ -27,46 +27,46 @@ local life = 1;
 
 --separating for OO requirements later
 ---------------------------------------------------------------------------------------------------
--- Sprites
+-- PLayer Sprite Initialization
 --define sprite frames
-local opt =
+local playerFrames =
 {
 frames = {
-		--Idle pose-
-		{ x = 23, y = 35, width = 209, height = 168}, --frame 1
-		{ x = 282, y = 35, width = 206, height = 170}, --frame 2
-		--right turn pose
-		{ x = 539, y = 32, width = 207, height = 174}, --frame 3
-		{ x = 797, y = 32, width = 203, height = 176} --frame 4
-      --more to come
-			
+		{ x = 23, y = 30, width = 182, height = 171}, --idle 1
+
+		{ x = 800, y = 30, width = 179, height = 169}, --right turn begin 2
+		{ x = 1060, y = 30, width = 165, height = 174}, --right turn end 3
+
+		{ x = 14889, y = 30, width = 181, height = 171}, --left turn begin 4
+		{ x = 14387, y = 30, width = 172, height = 171} --left turn end 5		
   }
 }
 
 -- include sprite image sheet
-local sheet = graphics.newImageSheet( "SF01a_strip60.png", opt);
+local playerSheet = graphics.newImageSheet( "SF01a_strip60.png", playerFrames);
 
 --set the frames for the animation of each of the 6 poses
-local seqData = {
-	{name = "idle", frames={1,2}, time=500},
-	--{name = "right", frames={5, 6, 7, 8, 9}, time = 500, loopCount =1},
-	--{name = "left", frames={10, 11, 12}, time = 500, loopCount =1}
+local playerSequences = {
+	{name = "idle", frames={1}, time = 500},
+	{name = "right", frames={2,3}, time = 500},
+	{name = "left", frames={4,5}, time = 500}
 }
 
+
 -- set sprite animation and initial state
-local anim = display.newSprite (sheet, seqData);
-anim.anchorX = display.contentCenterX;
-anim.anchorY = display.viewableContentHeight-60;
-anim.x = display.contentCenterX+25;
-anim.y = display.viewableContentHeight-70;
-anim.xScale = 0.15;
-anim.yScale = 0.15;
-anim:setSequence("idle");
-physics.addBody( anim, "kinematic", {bounce=0, radius=20} );
-anim.isSensor = true;
+local player = display.newSprite (playerSheet, playerSequences);
+player.anchorX = display.contentCenterX;
+player.anchorY = display.viewableContentHeight-60;
+player.x = display.contentCenterX+25;
+player.y = display.viewableContentHeight-35;
+player.xScale = 0.15;
+player.yScale = 0.15;
+player:setSequence("idle");
+physics.addBody( player, "kinematic", {bounce=0, radius=20} );
+player.isSensor = true;
 --play animation based on selected frames
-anim:toBack()
-anim:play();
+player:toBack()
+player:play();
 
 local function onLocalCollision( self, event )
 	if ( event.phase == "began" ) then
@@ -77,8 +77,8 @@ local function onLocalCollision( self, event )
 		--.. event.other.enemyname )
 	end
 end
-anim.collision = onLocalCollision
-anim:addEventListener( "collision" )
+player.collision = onLocalCollision
+player:addEventListener( "collision" )
 --crate2.collision = onLocalCollision
 --crate2:addEventListener( "collision" )
 
@@ -120,74 +120,106 @@ header =
 highscoreLabel = display.newText(header)
 
 
+local moveLeft = function(event)
+	local t = event.target
+	local phase = event.phase
+
+	if "began" == phase then
+	player:setSequence("left");
+		player.x = player.x - 1
+	end
+end
+
+local moveRight = function(event)
+	local t = event.target
+	local phase = event.phase
+
+	if "began" == phase then
+		player:setSequence("right");
+		player.x = player.x + 1
+	end
+end
+
+local moveDown = function(event)
+	local t = event.target
+	local phase = event.phase
+
+	if "began" == phase then
+		player.y = player.y + 1
+	end
+
+end
+
+local moveUp = function(event)
+	local t = event.target
+	local phase = event.phase
+
+	if "began" == phase then
+		player.y = player.y - 1
+	end
+end
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
 --create initial scene
 function scene:create( event )
    local sceneGroup = self.view
 
-	--create Left button
-	local buttonLeft = widget.newButton(
-	    {
-			x = (display.viewableContentWidth/10)-30,
-			y = display.viewableContentHeight-60,
-         id = "left",
-         --label = "<",
-         labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
-         onEvent = handleKickEvent,
-         emboss = true,
-         -- Properties for a rounded rectangle button
-         shape = "circle",
-         radius = 40,
-         fillColor = { default={0.4,0.4,0.4,1}, over={ 0.8, 0.8, 0.8 ,0.4} },
-         strokeColor = { default={0,0,0,1}, over={0.8,0.8,1,1} },
-         strokeWidth = 2,
-	    }
-	)
-	--set transparency
-	buttonLeft.alpha = 0.1
-	buttonLeft:toBack()
-	--add button to sceneGroup
-	sceneGroup:insert(buttonLeft);
+--creation of left button
+local leftButton = display.newImage("leftButton.png")
+   leftButton.xScale = 0.75
+   leftButton.yScale = 0.75
+   leftButton.x = 0
+   leftButton.y = 260
+   leftButton:setFillColor(1,0,0,.5)
+	leftButton:toBack()
+	sceneGroup:insert(leftButton);
+	leftButton:addEventListener( "touch", moveLeft )
+--creation of right button
+local rightButton = display.newImage("rightButton.png")
+   rightButton.xScale = 0.75
+   rightButton.yScale = 0.75
+   rightButton.x = 40
+   rightButton.y = 260
+   rightButton:setFillColor(1,0,0,.5)
+	rightButton:toBack()
+	sceneGroup:insert(rightButton);
+	rightButton:addEventListener( "touch", moveRight )
 
-	--create Right button
-	local buttonRight = widget.newButton(
-	    {
-			x = display.viewableContentWidth-20,
-			y = display.viewableContentHeight-60,
-         id = "right",
-         --label = "<",
-         labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
-         onEvent = handleKickEvent,
-         emboss = true,
-         -- Properties for a rounded rectangle button
-         shape = "circle",
-         radius = 40,
-         fillColor = { default={0.4,0.4,0.4,1}, over={ 0.8, 0.8, 0.8 ,0.4} },
-         strokeColor = { default={0,0,0,1}, over={0.8,0.8,1,1} },
-         strokeWidth = 2,
-	    }
-	)
-	--set transparency
-	buttonRight.alpha = 0.1
-	buttonRight:toBack()
-	--add button to sceneGroup
-	sceneGroup:insert(buttonRight);
+--creation of up button
+local upButton = display.newImage("upButton.png")
+   upButton.xScale = 0.75
+   upButton.yScale = 0.75
+   upButton.x = 20
+   upButton.y = 240
+   upButton:setFillColor(1,0,0,.5)
+	upButton:toBack()
+	sceneGroup:insert(upButton);
+	upButton:addEventListener( "touch", moveUp )
 
-	
-   --update fatalities with value
+--creation of downButton
+local downButton = display.newImage("downButton.png")
+   downButton.xScale = 0.75
+   downButton.yScale = 0.75
+   downButton.x = 20
+   downButton.y = 280
+   downButton:setFillColor(1,0,0,.5)
+	downButton:toBack()
+	sceneGroup:insert(downButton);
+	downButton:addEventListener( "touch", moveDown )
+
+--update fatalities with value
    scoreLabel.text = "Score: " .. score
 
-   --update high score with value
+--update high score with value
    highscoreLabel.text = "High Score: " .. best
 
-   --set effects for scene transition
+--set effects for scene transition
    local options = {
       effect = "slideDown",
       time = 100
    }
 
-   --scene2 call on game over
+--scene2 call on game over
    local function gameOver (event)
      composer.gotoScene("scene2", options);
    end
