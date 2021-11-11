@@ -33,11 +33,25 @@ function scene:create( event )
    --add background to scene group so it is removed when scene is removed
    sceneGroup:insert(background);
 
+   --initialize text for current score
+   local title = 
+   {
+       text = "X-GLIDER",     
+       x = display.contentCenterX+10,
+       y = display.contentCenterY-50,
+       width = 250,
+       font = native.systemFont,   
+       fontSize = 45,
+       align = "center"  -- Alignment parameter
+   } 
+   local titleLabel = display.newText( title )
+   sceneGroup:insert(titleLabel);
+
    --button to close scene and go back to previous scene
    local buttonPlay = widget.newButton(
      {
         left = display.contentCenterX-50,
-        top = display.contentCenterY-30,
+        top = display.contentCenterY,
         id = "play",
         label = "PLAY",
         labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },

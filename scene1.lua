@@ -172,6 +172,7 @@ local leftButton = display.newImage("leftButton.png")
    leftButton.y = 260
    leftButton:setFillColor(1,0,0,.5)
 	leftButton:toBack()
+	leftButton.alpha = 0.5
 	sceneGroup:insert(leftButton);
 	leftButton:addEventListener( "touch", moveLeft )
 --creation of right button
@@ -182,6 +183,7 @@ local rightButton = display.newImage("rightButton.png")
    rightButton.y = 260
    rightButton:setFillColor(1,0,0,.5)
 	rightButton:toBack()
+	rightButton.alpha = 0.5
 	sceneGroup:insert(rightButton);
 	rightButton:addEventListener( "touch", moveRight )
 
@@ -193,6 +195,7 @@ local upButton = display.newImage("upButton.png")
    upButton.y = 240
    upButton:setFillColor(1,0,0,.5)
 	upButton:toBack()
+	upButton.alpha = 0.5
 	sceneGroup:insert(upButton);
 	upButton:addEventListener( "touch", moveUp )
 
@@ -204,6 +207,7 @@ local downButton = display.newImage("downButton.png")
    downButton.y = 280
    downButton:setFillColor(1,0,0,.5)
 	downButton:toBack()
+	downButton.alpha = 0.5
 	sceneGroup:insert(downButton);
 	downButton:addEventListener( "touch", moveDown )
 
