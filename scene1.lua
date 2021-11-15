@@ -157,26 +157,26 @@ function scene:create( event )
    local sceneGroup = self.view
 
 --creation of left button
-local leftButton = display.newImage("leftButtonPlanet.png")
+local leftButton = display.newImage("leftButtonShape.png")
    leftButton.xScale = 0.75
    leftButton.yScale = 0.75
    leftButton.x = 0
    leftButton.y = 270
   --leftButton:setFillColor(1,0,0,.5)
 	leftButton:toBack()
-	leftButton.alpha = 0.6
+	leftButton.alpha = 0.7
 	sceneGroup:insert(leftButton);
 	leftButton:addEventListener( "touch", moveLeft )
 
 --creation of right button
-local rightButton = display.newImage("rightButtonPlanet.png")
+local rightButton = display.newImage("rightButtonShape.png")
    rightButton.xScale = 0.75
    rightButton.yScale = 0.75
    rightButton.x = 480
    rightButton.y = 270
    --rightButton:setFillColor(1,0,0,.5)
 	rightButton:toBack()
-	rightButton.alpha = 0.6
+	rightButton.alpha = 0.7
 	sceneGroup:insert(rightButton);
 	rightButton:addEventListener( "touch", moveRight )
 
