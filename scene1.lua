@@ -18,11 +18,11 @@ delay = 90
 --locals
 local score = 0
 local life = 1;
---local timerRef = timer.performWithDelay( 
---1000, 
---function() 
---end, 
---0 
+--local timerRef = timer.performWithDelay(
+--1000,
+--function()
+--end,
+--0
 --)
 
 --separating for OO requirements later
@@ -38,7 +38,7 @@ frames = {
 		{ x = 1060, y = 30, width = 165, height = 174}, --right turn end 3
 
 		{ x = 14889, y = 30, width = 181, height = 171}, --left turn begin 4
-		{ x = 14387, y = 30, width = 172, height = 171} --left turn end 5		
+		{ x = 14387, y = 30, width = 172, height = 171} --left turn end 5
   }
 }
 
@@ -94,26 +94,26 @@ background:toBack()
 ---------------------------------------------------------------------------------------------------
 -- Scoring Text
 --initialize text for current score
-local header = 
+local header =
 {
-    text = "Score:",     
+    text = "Score:",
     x = display.viewableContentWidth/10,
     y = display.viewableContentHeight/10,
     width = 150,
-    font = native.systemFont,   
+    font = native.systemFont,
     fontSize = 16,
     align = "left"  -- Alignment parameter
-} 
+}
 scoreLabel = display.newText( header )
 
 --initialize text for high score
-header = 
+header =
 {
-    text = "High Score:",     
+    text = "High Score:",
     x = display.viewableContentWidth-60,
     y = display.viewableContentHeight/10,
     width = 150,
-    font = native.systemFont,   
+    font = native.systemFont,
     fontSize = 16,
     align = "right"  -- Alignment parameter
 }
@@ -140,24 +140,16 @@ local moveRight = function(event)
 	end
 end
 
-local moveDown = function(event)
+local changeColor = function(event)
 	local t = event.target
 	local phase = event.phase
 
 	if "began" == phase then
-		player.y = player.y + 1
+
 	end
 
 end
 
-local moveUp = function(event)
-	local t = event.target
-	local phase = event.phase
-
-	if "began" == phase then
-		player.y = player.y - 1
-	end
-end
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
 --create initial scene
@@ -165,51 +157,41 @@ function scene:create( event )
    local sceneGroup = self.view
 
 --creation of left button
-local leftButton = display.newImage("leftButton.png")
+local leftButton = display.newImage("leftButtonPlanet.png")
    leftButton.xScale = 0.75
    leftButton.yScale = 0.75
    leftButton.x = 0
-   leftButton.y = 260
-   leftButton:setFillColor(1,0,0,.5)
+   leftButton.y = 270
+  --leftButton:setFillColor(1,0,0,.5)
 	leftButton:toBack()
-	leftButton.alpha = 0.5
+	leftButton.alpha = 0.6
 	sceneGroup:insert(leftButton);
 	leftButton:addEventListener( "touch", moveLeft )
+
 --creation of right button
-local rightButton = display.newImage("rightButton.png")
+local rightButton = display.newImage("rightButtonPlanet.png")
    rightButton.xScale = 0.75
    rightButton.yScale = 0.75
-   rightButton.x = 40
-   rightButton.y = 260
-   rightButton:setFillColor(1,0,0,.5)
+   rightButton.x = 480
+   rightButton.y = 270
+   --rightButton:setFillColor(1,0,0,.5)
 	rightButton:toBack()
-	rightButton.alpha = 0.5
+	rightButton.alpha = 0.6
 	sceneGroup:insert(rightButton);
 	rightButton:addEventListener( "touch", moveRight )
 
---creation of up button
-local upButton = display.newImage("upButton.png")
-   upButton.xScale = 0.75
-   upButton.yScale = 0.75
-   upButton.x = 20
-   upButton.y = 240
-   upButton:setFillColor(1,0,0,.5)
-	upButton:toBack()
-	upButton.alpha = 0.5
-	sceneGroup:insert(upButton);
-	upButton:addEventListener( "touch", moveUp )
+	--creation of powerButton
+	local powerButton = display.newImage("powerButton.png")
+	   powerButton.xScale = 1
+	   powerButton.yScale = 1
+	   powerButton.x = 480
+	   powerButton.y = 217
+	   --powerButton:setFillColor(1,0,0,.5)
+		 powerButton:toBack()
+		 powerButton.alpha = 0.8
+		 sceneGroup:insert(powerButton);
+		 powerButton:addEventListener( "touch", changeColor )
 
---creation of downButton
-local downButton = display.newImage("downButton.png")
-   downButton.xScale = 0.75
-   downButton.yScale = 0.75
-   downButton.x = 20
-   downButton.y = 280
-   downButton:setFillColor(1,0,0,.5)
-	downButton:toBack()
-	downButton.alpha = 0.5
-	sceneGroup:insert(downButton);
-	downButton:addEventListener( "touch", moveDown )
 
 --update fatalities with value
    scoreLabel.text = "Score: " .. score
@@ -239,7 +221,7 @@ local function rain (event)
 	if (life==0) then return end;
 	local drop = display.newRect(math.random(0, display.contentWidth), 0, 5, 20);
 	physics.addBody ( drop, { density=1, friction=2, bounce=0 }, "dynamic" );--( crate, { density=3.0, friction=0.5, bounce=0.3 } )
-	drop:setFillColor (math.random(), math.random(), 0.5);	
+	drop:setFillColor (math.random(), math.random(), 0.5);
 	drop:applyForce(0,-1, drop.x, drop.y);
 	drop.isSensor = true;
 
@@ -272,10 +254,10 @@ end
 local timer1 = timer.performWithDelay(delay, rain, 0)
 --show scene
 function scene:show( event )
- 
+
    local sceneGroup = self.view
    local phase = event.phase
- 
+
    if ( phase == "will" ) then
    	--physics.start()
 
@@ -284,13 +266,13 @@ function scene:show( event )
    	timer1 = timer.performWithDelay(delay,rain,0)
    end
 end
- 
+
 --hide scene
 function scene:hide( event )
- 
+
    local sceneGroup = self.view
    local phase = event.phase
- 
+
    if ( phase == "will" ) then
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
@@ -299,12 +281,12 @@ function scene:hide( event )
 
    end
 end
- 
+
 --destroy scene
 function scene:destroy( event )
    local sceneGroup = self.view
 end
- 
+
 --listen for these events
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
