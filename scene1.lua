@@ -8,24 +8,59 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity( 0, 3 )
 local composer = require( "composer" )
+local json = require( "json" )
 local scene = composer.newScene()
 
-
-
 --globals
-best = 0
 delay = 90
 --locals
 local score = 0
 local life = 1;
---local timerRef = timer.performWithDelay(
---1000,
---function()
---end,
---0
---)
 
---separating for OO requirements later
+---------------------------------------------------------------------------------------------------
+--JSON
+local high = { score = 456 }
+
+print( high.score )
+
+local serializedString = json.encode( high )
+print( serializedString )
+
+--testing for midterm
+local tester = {
+	{ name="Clark Kent", nickname="Superman",
+	address="Metropolis", age=32 },
+	{ name="Bruce Wayne", nickname="Batman",
+	address="Gotham", age=36 },
+	{ name="Diana Prince", nickname="Wonder Woman",
+	address="New York", age=28 }
+}
+local serializedTester = json.encode( tester )
+print( serializedTester )
+
+--write high score to json file on game over
+ --local data = "My app state data";
+ --system.DocumentsDirectory, In the Corona Simulator, this will be in a sandboxed folder on a per-application basis.
+ --You can view its directories/files via File → Show Project Sandbox
+ local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
+ -- Open the file handle
+local file, errorString = io.open( path, "w+" )
+
+if not file then
+    -- Error occurred; output the cause
+    print( "File error: " .. errorString )
+else
+    -- Output lines
+    for line in file:lines() do
+        print( line )
+    end
+		file:write( serializedString );
+    -- Close the file handle
+    io.close( file )
+end
+
+ --io.close( file );
+ file = nil
 ---------------------------------------------------------------------------------------------------
 -- PLayer Sprite Initialization
 --define sprite frames
@@ -73,6 +108,7 @@ local function onLocalCollision( self, event )
 		print( ": collision began "  )
 		--.. event.other.enemyname )
 	elseif ( event.phase == "ended" ) then
+		gameOver()
 		--print( self.myname .. ": collision ended with "  )
 		--.. event.other.enemyname )
 	end
@@ -117,9 +153,10 @@ header =
     fontSize = 16,
     align = "right"  -- Alignment parameter
 }
-highscoreLabel = display.newText(header)
+highLabel = display.newText(header)
 
-
+---------------------------------------------------------------------------------------------------
+-- Button Events
 local moveLeft = function(event)
 	local t = event.target
 	local phase = event.phase
@@ -147,7 +184,6 @@ local changeColor = function(event)
 	if "began" == phase then
 
 	end
-
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -197,7 +233,7 @@ local rightButton = display.newImage("rightButtonShape.png")
    scoreLabel.text = "Score: " .. score
 
 --update high score with value
-   highscoreLabel.text = "High Score: " .. best
+   highLabel.text = "High Score: " .. high.score
 
 --set effects for scene transition
    local options = {
@@ -205,9 +241,11 @@ local rightButton = display.newImage("rightButtonShape.png")
       time = 100
    }
 
---scene2 call on game over
-   local function gameOver (event)
-     composer.gotoScene("scene2", options);
+
+   function gameOver ()
+
+      --call scene2 on game over
+      composer.gotoScene("scene2", options);
    end
    --listen for button click
    --buttonLeft:addEventListener("tap", next);
@@ -277,6 +315,13 @@ function scene:hide( event )
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
    	--physics.stop()
+		--write high score to json file on game over
+		 --local data = "My app state data";
+		 --local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
+		 --local file = io.open( path, "w" );
+		 --file:write( serializedString );
+		 --io.close( file );
+		 --file = nil
    elseif ( phase == "did" ) then
 
    end
