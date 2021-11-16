@@ -24,7 +24,8 @@ function scene:create( event )
    -- Create the object
 
    --background is a large rounded rectangle
-   local background = display.newRoundedRect(display.contentCenterX,display.contentCenterY,display.viewableContentWidth+100,display.actualContentHeight, 12);
+   local background = display.newRoundedRect(display.contentCenterX,display.contentCenterY,
+                        display.viewableContentWidth+100,display.actualContentHeight, 12);
    background.strokeWidth = 2
    background:setFillColor( 0.5 )
    background:setStrokeColor( 0.5, 0.5, 0.5 )

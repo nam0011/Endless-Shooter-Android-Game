@@ -3,7 +3,7 @@
 --	  Filename: scene1.lua, Purpose: Background, aliens, text, controls, & ship handles.
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
-
+local loadsave = require( "loadsave" ) --json loader
 local physics = require( "physics" )
 physics.start()
 physics.setGravity( 0, 3 )
@@ -36,46 +36,18 @@ gameoverGroup.text.isVisible = false
 
 ---------------------------------------------------------------------------------------------------
 --JSON
-local high = { score = 456 }
-
-print( high.score )
-
-local serializedString = json.encode( high )
-print( serializedString )
-
---testing for midterm
-local tester = {
-	{ name="Clark Kent", nickname="Superman",
-	address="Metropolis", age=32 },
-	{ name="Bruce Wayne", nickname="Batman",
-	address="Gotham", age=36 },
-	{ name="Diana Prince", nickname="Wonder Woman",
-	address="New York", age=28 }
-}
-local serializedTester = json.encode( tester )
-print( serializedTester )
-
---write high score to json file on game over
- --system.DocumentsDirectory, In the Corona Simulator, this will be in a
- --sandboxed folder on a per-application basis.
- --You can view its directories/files via File → Show Project Sandbox
-local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
- -- Open the file handle
-local file, errorString = io.open( path, "w+" )
-
-if not file then
-    -- Error occurred; output the cause
-    print( "File error: " .. errorString )
-else
-    -- Output lines
-    for line in file:lines() do
-        print( line )
-    end
-		file:write( serializedString );
-    -- Close the file handle
-    io.close( file )
+local loadedSettings = loadsave.loadTable( "settings.json" )
+if (loadedSettings == nil ) then
+	loadedSettings = {
+	    musicOn = true,
+	    soundOn = true,
+	    difficulty = "easy",
+	    highScore = 10000,
+	    highestLevel = 7
+	}
 end
-file = nil
+
+print( loadedSettings.highScore )
 
 ---------------------------------------------------------------------------------------------------
 -- PLayer Sprite Initialization
@@ -174,7 +146,6 @@ header =
 }
 highLabel = display.newText(header)
 
-
 ---------------------------------------------------------------------------------------------------
 -- Button Events
 local moveLeft = function(event)
@@ -205,8 +176,6 @@ local changeColor = function(event)
 
 	end
 end
-
-
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -254,7 +223,14 @@ local rightButton = display.newImage("rightButtonShape.png")
    scoreLabel.text = "Score: " .. score
 
 --update high score with value
-   highLabel.text = "High Score: " .. high.score
+  --use for loop in case of multiple records
+	--[[for k,v in pairs(loadedSettings) do
+	    --print( k,v )
+			if (k == "highScore") then
+      	highLabel.text = "High Score: " .. v
+			end
+	end--]]
+	highLabel.text = "High Score: " .. loadedSettings.highScore
 
 end  --end create scene
 
@@ -265,6 +241,15 @@ function gameOver ()
 	  if (bIsFirstPass == true) then
 			gameoverGroup.text.isVisible = true
 			bIsFirstPass = false
+			--testing score saving
+			score = 200000
+			--table
+    	if (score > loadedSettings.highScore) then
+				loadedSettings.highScore = score;
+			end
+			highLabel.text = "High Score: " .. loadedSettings.highScore
+			--save to json table
+			loadsave.saveTable( loadedSettings, "settings.json" )
 		end
 
 	--set effects for scene transition
