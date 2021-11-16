@@ -12,10 +12,27 @@ local json = require( "json" )
 local scene = composer.newScene()
 
 --globals
-delay = 90
+gameoverGroup = display.newGroup()
+
 --locals
+local delay = 90
 local score = 0
 local life = 1;
+
+---------------------------------------------------------------------------------------------------
+--game over label
+local gamend =
+{
+	 text = "Game Over",
+	 x = display.contentCenterX+10,
+	 y = display.contentCenterY+80,
+	 width = 250,
+	 font = native.systemFont,
+	 fontSize = 35,
+	 align = "center"  -- Alignment parameter
+}
+gameoverGroup.text = display.newText(gamend)
+gameoverGroup.text.isVisible = false
 
 ---------------------------------------------------------------------------------------------------
 --JSON
@@ -39,10 +56,10 @@ local serializedTester = json.encode( tester )
 print( serializedTester )
 
 --write high score to json file on game over
- --local data = "My app state data";
- --system.DocumentsDirectory, In the Corona Simulator, this will be in a sandboxed folder on a per-application basis.
+ --system.DocumentsDirectory, In the Corona Simulator, this will be in a
+ --sandboxed folder on a per-application basis.
  --You can view its directories/files via File → Show Project Sandbox
- local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
+local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
  -- Open the file handle
 local file, errorString = io.open( path, "w+" )
 
@@ -58,9 +75,8 @@ else
     -- Close the file handle
     io.close( file )
 end
+file = nil
 
- --io.close( file );
- file = nil
 ---------------------------------------------------------------------------------------------------
 -- PLayer Sprite Initialization
 --define sprite frames
@@ -103,11 +119,14 @@ player.isSensor = true;
 player:toBack()
 player:play();
 
+---------------------------------------------------------------------------------------------------
+-- Collision handler
 local function onLocalCollision( self, event )
 	if ( event.phase == "began" ) then
 		print( ": collision began "  )
 		--.. event.other.enemyname )
 	elseif ( event.phase == "ended" ) then
+
 		gameOver()
 		--print( self.myname .. ": collision ended with "  )
 		--.. event.other.enemyname )
@@ -155,6 +174,7 @@ header =
 }
 highLabel = display.newText(header)
 
+
 ---------------------------------------------------------------------------------------------------
 -- Button Events
 local moveLeft = function(event)
@@ -185,6 +205,8 @@ local changeColor = function(event)
 
 	end
 end
+
+
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -228,31 +250,33 @@ local rightButton = display.newImage("rightButtonShape.png")
 		 sceneGroup:insert(powerButton);
 		 powerButton:addEventListener( "touch", changeColor )
 
-
 --update fatalities with value
    scoreLabel.text = "Score: " .. score
 
 --update high score with value
    highLabel.text = "High Score: " .. high.score
 
---set effects for scene transition
-   local options = {
-      effect = "slideDown",
-      time = 100
-   }
-
-
-   function gameOver ()
-
-      --call scene2 on game over
-      composer.gotoScene("scene2", options);
-   end
-   --listen for button click
-   --buttonLeft:addEventListener("tap", next);
-
-
 end  --end create scene
 
+---------------------------------------------------------------------------------------------------
+-- Game Over
+function gameOver ()
+
+	  if (bIsFirstPass == true) then
+			gameoverGroup.text.isVisible = true
+			bIsFirstPass = false
+		end
+
+	--set effects for scene transition
+	 local options = {
+	    effect = "slideDown",
+	    time = 2000
+	 }
+
+		--call scene2 on game over
+		timer.performWithDelay(400000, composer.gotoScene("scene2", options), 1)
+
+ end
 ---------------------------------------------------------------------------------------------------
 -- raindrops
 local function rain (event)
@@ -272,7 +296,6 @@ local function rain (event)
 			if (timeVal > 0) then
 				timeVal = timeVal - 10
 			end
-			--timer.performWithDelay(timeVal, rain, 0);
 		end
 	end
 	drop:addEventListener("collision", dropHandler);
@@ -298,7 +321,8 @@ function scene:show( event )
 
    if ( phase == "will" ) then
    	--physics.start()
-
+		--reset first pass every game
+		bIsFirstPass = true
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
    	timer1 = timer.performWithDelay(delay,rain,0)
@@ -322,6 +346,7 @@ function scene:hide( event )
 		 --file:write( serializedString );
 		 --io.close( file );
 		 --file = nil
+
    elseif ( phase == "did" ) then
 
    end
