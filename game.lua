@@ -5,6 +5,7 @@
 ---------------------------------------------------------------------------------------------------
 local loadsave = require( "loadsave" ) --json loader
 local physics = require( "physics" )
+local widget = require("widget")
 physics.start()
 physics.setGravity( 0, 3 )
 local composer = require( "composer" )
@@ -258,13 +259,13 @@ function gameOver ()
 	    time = 2000
 	 }
 
-		--call scene2 on game over
-		timer.performWithDelay(400000, composer.gotoScene("scene2", options), 1)
+		--call menu on game over
+		timer.performWithDelay(400000, composer.gotoScene("menu", options), 1)
 
  end
 ---------------------------------------------------------------------------------------------------
 -- raindrops
-local function rain (event)
+--[[local function rain (event)
 	if (life==0) then return end;
 	local drop = display.newRect(math.random(0, display.contentWidth), 0, 5, 20);
 	physics.addBody ( drop, { density=1, friction=2, bounce=0 }, "dynamic" );--( crate, { density=3.0, friction=0.5, bounce=0.3 } )
@@ -285,7 +286,7 @@ local function rain (event)
 	end
 	drop:addEventListener("collision", dropHandler);
 
-end
+end]]
 
 
 ---------------------------------------------------------------------------------------------------
@@ -297,7 +298,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 -- Events
-local timer1 = timer.performWithDelay(delay, rain, 0)
+--local timer1 = timer.performWithDelay(delay, rain, 0)
 --show scene
 function scene:show( event )
 
@@ -310,7 +311,7 @@ function scene:show( event )
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
-   	timer1 = timer.performWithDelay(delay,rain,0)
+   	--timer1 = timer.performWithDelay(delay,rain,0)
    end
 end
 

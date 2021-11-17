@@ -5,6 +5,8 @@
 ---------------------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
+local widget = require("widget")
+
 local scene = composer.newScene()
 
 ---------------------------------------------------------------------------------
@@ -12,18 +14,38 @@ local scene = composer.newScene()
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
 
--- local forward references should go here
-
----------------------------------------------------------------------------------
+local function play (event)
+   --set effects for scene transition
+   local ops = {
+     effect = "fade",
+     time = 500
+   }
+   composer.gotoScene("game", ops)
+end
 
 --create scene
 function scene:create( event )
 
    local sceneGroup = self.view
 
-   -- Create the object
+   -- Create the title
+   --self.title = display.newText(sceneGroup, "X-GLIDER", display.contentCenterX+10, display.contentCenterY-50, font, 48)
 
-   --background is a large rounded rectangle
+   --create the title
+   local title =
+   {
+       text = "X-GLIDER",
+       x = display.contentCenterX+10,
+       y = display.contentCenterY-50,
+       --width = 250,
+       font = native.systemFont,
+       fontSize = 45,
+       align = "center"  -- Alignment parameter
+   }
+   local titleLabel = display.newText( title )
+   sceneGroup:insert(titleLabel);
+
+   --background is a large semi-transparent rounded rectangle
    local background = display.newRoundedRect(display.contentCenterX,display.contentCenterY,
                         display.viewableContentWidth+100,display.actualContentHeight, 12);
    background.strokeWidth = 2
@@ -34,62 +56,40 @@ function scene:create( event )
    --add background to scene group so it is removed when scene is removed
    sceneGroup:insert(background);
 
-   --initialize text for current score
-   local title =
-   {
-       text = "X-GLIDER",
-       x = display.contentCenterX+10,
-       y = display.contentCenterY-50,
-       width = 250,
-       font = native.systemFont,
-       fontSize = 45,
-       align = "center"  -- Alignment parameter
-   }
-   local titleLabel = display.newText( title )
-   sceneGroup:insert(titleLabel);
 
    --button to close scene and go back to previous scene
    local buttonPlay = widget.newButton(
      {
-        left = display.contentCenterX-50,
+        left = display.contentCenterX-70,
         top = display.contentCenterY,
-        id = "play",
         label = "PLAY",
         labelColor = { default={ 0.8, 0.8, 0.8 }, over={ 0, 0, 0, 0.5 } },
-        onEvent = handleKickEvent,
+        onRelease = buttonPlay,
         emboss = true,
         -- Properties for a rounded rectangle button
         shape = "roundedRect",
-        width = 120,
-        height = 60,
+        width = display.contentWidth / 3,
+        height = display.contentHeight / 8,
         cornerRadius = 4,
         fillColor = { default={0.4,0.4,0.4,1}, over={ 0.8, 0.8, 0.8 ,0.4} },
-        --strokeColor = { default={0.6,0.5,0.5,1}, over={0.8,0.8,1,1} },
-        strokeWidth = 2
+        strokeColor = { default={0.4,0.4,0.47,1}, over={ 0.8, 0.8, 0.8 ,0.4} },
+        strokeWidth = 2,
+        emboss = true
      }
    )
    --add button to scene group
    sceneGroup:insert(buttonPlay);
 
-   --set effects for scene transition
-   local options = {
-      effect = "slideDown",
-      time = 100
-   }
-
-   --scene2 called on button click
-   local function back (event)
-      composer.gotoScene("scene1", options);
-   end
    --listen for button click
-   buttonPlay:addEventListener("tap", back);
+   buttonPlay:addEventListener("tap", play);
 
 end
-local function closeText()
 
-  gameoverGroup.text.isVisible = false
+--local function closeText()
 
-end
+--  gameoverGroup.text.isVisible = false
+
+--end
 -- show scene
 function scene:show( event )
 
@@ -105,9 +105,9 @@ function scene:show( event )
       -- Example: start timers, begin animation, play audio, etc.
       --timer2 = timer.performWithDelay(delay,update,0)
       --Game Over Text
-      if (gameoverGroup.text) then
-        timer.performWithDelay(2000,closeText,1)
-      end
+      --if (gameoverGroup.text) then
+      --  timer.performWithDelay(2000,closeText,1)
+      --end
     end
 end
 
