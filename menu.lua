@@ -8,11 +8,16 @@ local composer = require( "composer" )
 local widget = require("widget")
 
 local scene = composer.newScene()
+--globals
+gameoverGroup = display.newGroup()
 
 ---------------------------------------------------------------------------------
 -- All code outside of the listener functions will only be executed ONCE
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+
 
 local function play (event)
    --set effects for scene transition
@@ -83,13 +88,28 @@ function scene:create( event )
    --listen for button click
    buttonPlay:addEventListener("tap", play);
 
+   --game over label
+   local gamend =
+   {
+   	 text = "Game Over",
+   	 x = display.contentCenterX+10,
+   	 y = display.contentCenterY+80,
+   	 width = 250,
+   	 font = native.systemFont,
+   	 fontSize = 35,
+   	 align = "center"  -- Alignment parameter
+   }
+   gameoverGroup.text = display.newText(gamend)
+   gameoverGroup.text.isVisible = false
+   --add game over text to scene group
+   sceneGroup:insert(gameoverGroup);
 end
 
---local function closeText()
+local function closeText()
 
---  gameoverGroup.text.isVisible = false
+  gameoverGroup.text.isVisible = false
 
---end
+end
 -- show scene
 function scene:show( event )
 
@@ -105,9 +125,9 @@ function scene:show( event )
       -- Example: start timers, begin animation, play audio, etc.
       --timer2 = timer.performWithDelay(delay,update,0)
       --Game Over Text
-      --if (gameoverGroup.text) then
-      --  timer.performWithDelay(2000,closeText,1)
-      --end
+      if (gameoverGroup.text.isVisible) then
+        timer.performWithDelay(2000,closeText,1)
+      end
     end
 end
 
@@ -116,7 +136,6 @@ function scene:hide( event )
 
    local sceneGroup = self.view
    local phase = event.phase
-   --gameoverDisplay.text.isVisible = false
    if ( phase == "will" ) then
       -- Called when the scene is on screen (but is about to go off screen).
       -- Insert code here to "pause" the scene.

@@ -3,8 +3,8 @@
 --	  Filename: scene1.lua, Purpose: Background, aliens, text, controls, & ship handles.
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
---local entity = require("entity")
---local pentagon = require("pentagon")
+local entity = require("entity")
+local pentagon = require("pentagon")
 --local triangle = require("triangle")
 --local projectile = require("projectile")
 local widget = require("widget")
@@ -18,15 +18,16 @@ local json = require( "json" )
 
 local scene = composer.newScene()
 
---globals
-gameoverGroup = display.newGroup()
-
 --locals
 local delay = 90
 local score = 0
 local life = 1;
 local runtime = 0
 local scrollSpeed = 1.4
+local triChance = 0.0035   --spawn enemy
+local lastPent = 0         --spawn enemy
+local pentChance = 0.0035  --spawn enemy
+local enemies = {}         --spawn enemy
 
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
@@ -72,6 +73,23 @@ local function getDeltaTime()
     return dt
 end
 
+---------------------------------------------------------------------------------------------------
+--spawn enemies
+local function spawnPentagon()
+    --local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 135 }, { destY = scene.player.y })
+		local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 0 }, { destY = display.actualContentHeight + 5 })
+    pent:spawn(scene.view)
+    pent:move()
+
+    pent.shape.isFixedRotation = true
+    pent.onDeath = scoreUp
+    lastPent = system.getTimer()
+
+    table.insert(enemies, pent.shape)
+end
+
+---------------------------------------------------------------------------------------------------
+--start frames
 local function enterFrame()
     local dt = getDeltaTime()
     local t = system.getTimer()
@@ -83,27 +101,13 @@ local function enterFrame()
 
     moveBg(dt)
 
-    --local rt = triChance * dt
-    --local rp = pentChance * dt
+    local rt = triChance * dt
+    local rp = pentChance * dt
 
     --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
-    --if math.random() < rp or t - lastPent > 2000 then spawnPentagon() end
+    if math.random() < rp or t - lastPent > 2000 then spawnPentagon() end
 end
 
----------------------------------------------------------------------------------------------------
---game over label
-local gamend =
-{
-	 text = "Game Over",
-	 x = display.contentCenterX+10,
-	 y = display.contentCenterY+80,
-	 width = 250,
-	 font = native.systemFont,
-	 fontSize = 35,
-	 align = "center"  -- Alignment parameter
-}
-gameoverGroup.text = display.newText(gamend)
-gameoverGroup.text.isVisible = false
 
 ---------------------------------------------------------------------------------------------------
 -- Scoring Text
@@ -297,6 +301,12 @@ local rightButton = display.newImage("rightButtonShape.png")
 		 sceneGroup:insert(powerButton);
 		 powerButton:addEventListener( "touch", changeColor )
 
+     --spawn enemies
+		 self.player = entity:new({ x = display.contentCenterX, y = display.contentHeight - 150, damagers = { projectile = true, enemy = true }, tag = "player", hp = 5 })
+     self.player:spawn(sceneGroup)
+     self.player.shape.markX = self.player.x
+     self.player.onDeath = function () audio.play(sfx.death); gameOver() end
+
   --initialize score value
   scoreLabel.text = "Score: " .. score
 
@@ -333,7 +343,8 @@ function gameOver ()
 
 	--set effects for scene transition
 	 local options = {
-	    effect = "slideDown",
+		 effect = "fade",
+     --time = 500
 	    time = 2000
 	 }
 
@@ -384,7 +395,13 @@ function scene:show( event )
    local phase = event.phase
 
    if ( phase == "will" ) then
-   	--physics.start()
+		 physics.start()
+		 self.player.hp = 5
+		 score = 0
+
+		 if not self.player.shape then
+			 self.player:spawn(sg)
+		 end
 		--reset first pass every game
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
