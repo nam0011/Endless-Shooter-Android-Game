@@ -1,3 +1,4 @@
+--  Group Project: CS371, Instructor: Dr Chung
 local entity = require("entity")
 local physics = require("physics")
 

@@ -1,3 +1,4 @@
+--  Group Project: CS371, Instructor: Dr Chung
 local physics = require("physics")
 
 -- Only ever need one prototype for Entity
@@ -104,7 +105,7 @@ end
 -- Callback for entity damage
 -- If this function returns true, it will cancel the damage
 function Entity:onDamage(val)
-  
+
 end
 
 -- Entity:collision(event)

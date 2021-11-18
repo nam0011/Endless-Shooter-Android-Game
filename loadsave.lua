@@ -1,3 +1,8 @@
+---------------------------------------------------------------------------------------------------
+--  Group Project: CS371, Instructor: Dr Chung, Program: Navigate ship through aliens,
+--	  Filename: scene1.lua, Purpose: Background, aliens, text, controls, & ship handles.
+--	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
+---------------------------------------------------------------------------------------------------
 local M = {}
 
 local json = require( "json" )
