@@ -26,7 +26,7 @@ local delay = 90
 local score = 0
 local life = 1;
 local runtime = 0
-local scrollSpeed = 1.2
+local scrollSpeed = 1.4
 
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
@@ -106,6 +106,34 @@ gameoverGroup.text = display.newText(gamend)
 gameoverGroup.text.isVisible = false
 
 ---------------------------------------------------------------------------------------------------
+-- Scoring Text
+--initialize text for current score
+local header =
+{
+    text = "Score:",
+    x = display.viewableContentWidth/10,
+    y = display.viewableContentHeight/10,
+    width = 150,
+    font = native.systemFont,
+    fontSize = 16,
+    align = "left"  -- Alignment parameter
+}
+scoreLabel = display.newText( header )
+
+--initialize text for high score
+header =
+{
+    text = "High Score:",
+    x = display.viewableContentWidth-60,
+    y = display.viewableContentHeight/10,
+    width = 150,
+    font = native.systemFont,
+    fontSize = 16,
+    align = "right"  -- Alignment parameter
+}
+highLabel = display.newText(header)
+
+---------------------------------------------------------------------------------------------------
 --JSON
 local loadedSettings = loadsave.loadTable( "settings.json" )
 if (loadedSettings == nil ) then
@@ -120,6 +148,15 @@ end
 
 print( loadedSettings.highScore )
 
+---------------------------------------------------------------------------------------------------
+--scoreUp - increases score as play
+local function scoreUp ()
+    score = score + 1
+    --scene.scoreText.text = "Score: " .. score
+		--update fatalities with value
+		scoreLabel.text = "Score: " .. score
+    --audio.play(sfx.point)
+end
 ---------------------------------------------------------------------------------------------------
 -- PLayer Sprite Initialization
 --define sprite frames
@@ -182,33 +219,6 @@ player:addEventListener( "collision" )
 
 
 
----------------------------------------------------------------------------------------------------
--- Scoring Text
---initialize text for current score
-local header =
-{
-    text = "Score:",
-    x = display.viewableContentWidth/10,
-    y = display.viewableContentHeight/10,
-    width = 150,
-    font = native.systemFont,
-    fontSize = 16,
-    align = "left"  -- Alignment parameter
-}
-scoreLabel = display.newText( header )
-
---initialize text for high score
-header =
-{
-    text = "High Score:",
-    x = display.viewableContentWidth-60,
-    y = display.viewableContentHeight/10,
-    width = 150,
-    font = native.systemFont,
-    fontSize = 16,
-    align = "right"  -- Alignment parameter
-}
-highLabel = display.newText(header)
 
 ---------------------------------------------------------------------------------------------------
 -- Button Events
@@ -287,8 +297,8 @@ local rightButton = display.newImage("rightButtonShape.png")
 		 sceneGroup:insert(powerButton);
 		 powerButton:addEventListener( "touch", changeColor )
 
---update fatalities with value
-   scoreLabel.text = "Score: " .. score
+  --initialize score value
+  scoreLabel.text = "Score: " .. score
 
 --update high score with value
   --use for loop in case of multiple records
@@ -380,6 +390,7 @@ function scene:show( event )
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
    	--timer1 = timer.performWithDelay(delay,rain,0)
+		timer1 = timer.performWithDelay(delay,scoreUp,0)
    end
 end
 
@@ -417,6 +428,7 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 --local timer1 = timer.performWithDelay(30, update, 0)
+--local timer1 = timer.performWithDelay(30, scoreUp, 0)
 
 Runtime:addEventListener("enterFrame", enterFrame)
 
