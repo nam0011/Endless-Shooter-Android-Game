@@ -3,13 +3,19 @@
 --	  Filename: scene1.lua, Purpose: Background, aliens, text, controls, & ship handles.
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
+--local entity = require("entity")
+--local pentagon = require("pentagon")
+--local triangle = require("triangle")
+--local projectile = require("projectile")
+local widget = require("widget")
+
 local loadsave = require( "loadsave" ) --json loader
 local physics = require( "physics" )
-local widget = require("widget")
-physics.start()
-physics.setGravity( 0, 3 )
+
+
 local composer = require( "composer" )
 local json = require( "json" )
+
 local scene = composer.newScene()
 
 --globals
@@ -19,6 +25,70 @@ gameoverGroup = display.newGroup()
 local delay = 90
 local score = 0
 local life = 1;
+local runtime = 0
+local scrollSpeed = 1.2
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+--set background image
+local background = display.newImageRect( "background.png",
+               (display.viewableContentWidth*1.2), display.viewableContentHeight)
+background.x = display.contentCenterX
+background.y = display.contentCenterY
+background:toBack()
+
+local function addScrollableBg()
+    local bgImage = { type="image", filename="background.png" }
+
+    -- Add First bg image
+    bg1 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
+    bg1.fill = bgImage
+    bg1.x = display.contentCenterX
+    bg1.y = display.contentCenterY
+
+    -- Add Second bg image
+    bg2 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
+    bg2.fill = bgImage
+    bg2.x = display.contentCenterX
+    bg2.y = display.contentCenterY - display.actualContentHeight
+end
+
+local function moveBg(dt)
+    bg1.y = bg1.y + scrollSpeed * dt
+    bg2.y = bg2.y + scrollSpeed * dt
+
+    if (bg1.y - display.contentHeight/2) > display.actualContentHeight then
+        bg1:translate(0, -bg1.contentHeight * 2)
+    end
+    if (bg2.y - display.contentHeight/2) > display.actualContentHeight then
+        bg2:translate(0, -bg2.contentHeight * 2)
+    end
+end
+
+local function getDeltaTime()
+    local temp = system.getTimer()
+    local dt = (temp - runtime) / (1000 / 60)
+    runtime = temp
+    return dt
+end
+
+local function enterFrame()
+    local dt = getDeltaTime()
+    local t = system.getTimer()
+
+
+    --scene.hpText.text = "HP: " .. scene.player.hp
+
+    if pause then return end
+
+    moveBg(dt)
+
+    --local rt = triChance * dt
+    --local rp = pentChance * dt
+
+    --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
+    --if math.random() < rp or t - lastPent > 2000 then spawnPentagon() end
+end
 
 ---------------------------------------------------------------------------------------------------
 --game over label
@@ -89,7 +159,7 @@ player:setSequence("idle");
 physics.addBody( player, "kinematic", {bounce=0, radius=20} );
 player.isSensor = true;
 --play animation based on selected frames
-player:toBack()
+--player:toBack()
 player:play();
 
 ---------------------------------------------------------------------------------------------------
@@ -110,14 +180,7 @@ player:addEventListener( "collision" )
 --crate2.collision = onLocalCollision
 --crate2:addEventListener( "collision" )
 
----------------------------------------------------------------------------------------------------
 
---set background image
-local background = display.newImageRect( "background.png",
-               (display.viewableContentWidth*1.2), display.viewableContentHeight)
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-background:toBack()
 
 ---------------------------------------------------------------------------------------------------
 -- Scoring Text
@@ -184,6 +247,10 @@ end
 function scene:create( event )
    local sceneGroup = self.view
 
+	 physics.start()
+	 physics.setGravity( 0, 3 )
+
+	 addScrollableBg()
 --creation of left button
 local leftButton = display.newImage("leftButtonShape.png")
    leftButton.xScale = 0.75
@@ -232,6 +299,7 @@ local rightButton = display.newImage("rightButtonShape.png")
 			end
 	end--]]
 	highLabel.text = "High Score: " .. loadedSettings.highScore
+
 
 end  --end create scene
 
@@ -349,4 +417,7 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 --local timer1 = timer.performWithDelay(30, update, 0)
+
+Runtime:addEventListener("enterFrame", enterFrame)
+
 return scene
