@@ -236,9 +236,8 @@ function scene:create( event )
 
 	 addScrollableBg()
 
-	 --spawn player
+	 --spawn mock (circle) player for testing
 	 self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
-	 --local ship = self.player
 	 self.player:spawn(sceneGroup)
 	 self.player.shape.markX = self.player.x
 	 self.player.onDeath = function () audio.play(sfx.death); gameOver() end
