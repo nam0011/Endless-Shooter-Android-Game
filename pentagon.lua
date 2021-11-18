@@ -33,7 +33,7 @@ function Pentagon:onPathFinished()
 end
 
 function Pentagon:onDamage(val)
-  audio.play(sfx.hit)
+  audio.play(sfx.death)
 end
 
 return Pentagon
