@@ -49,7 +49,8 @@ function Entity:spawn(grp)
     if self.shapePath == nil then
         self.shape = display.newCircle(self.x, self.y, 15)
     else
-        self.shape = display.newPolygon(self.x, self.y, self.shapePath)
+        --self.shape = display.newPolygon(self.x, self.y, self.shapePath)
+        self.shape = display.newPolygon(self.x, 0, self.shapePath)
     end
 
     self.shape:setFillColor(unpack(self.color))

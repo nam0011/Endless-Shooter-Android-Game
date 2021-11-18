@@ -204,7 +204,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 -- Collision handler
---[[local function onLocalCollision( self, event )
+local function onLocalCollision( self, event )
 	if ( event.phase == "began" ) then
 		print( ": collision began "  )
 		--.. event.other.enemyname )
@@ -215,15 +215,8 @@ end
 		--.. event.other.enemyname )
 	end
 end
-player.collision = onLocalCollision
-player:addEventListener( "collision" )--]]
---crate2.collision = onLocalCollision
---crate2:addEventListener( "collision" )
-
-
-
-
-
+ship.collision = onLocalCollision
+ship:addEventListener( "collision" )
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -236,7 +229,8 @@ function scene:create( event )
 
 	 addScrollableBg()
 
-	 --spawn mock (circle) player for testing
+
+  --note: use to spawn circle spawn mock (circle) player for testing
 	 self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
 	 self.player:spawn(sceneGroup)
 	 self.player.shape.markX = self.player.x
@@ -296,14 +290,14 @@ function scene:create( event )
 			rightButton:addEventListener( "touch", moveRight )
 
 			--creation of powerButton
-			local powerButton = display.newImage("powerButton.png")
+			local powerButton = display.newImage("powerButtonRing.png")
 			   powerButton.xScale = 1
 			   powerButton.yScale = 1
 			   powerButton.x = 480
 			   powerButton.y = 217
 			   --powerButton:setFillColor(1,0,0,.5)
 				 powerButton:toBack()
-				 powerButton.alpha = 0.8
+				 powerButton.alpha = 0.7
 				 sceneGroup:insert(powerButton);
 				 powerButton:addEventListener( "touch", changeColor )
 
@@ -398,17 +392,23 @@ function scene:show( event )
 
    if ( phase == "will" ) then
 		 physics.start()
-		 self.player.hp = 1
+
 		 score = 0
 
+     --note: use for testing with circle
+		 self.player.hp = 1
 		 if not self.player.shape then
 			 self.player:spawn(sceneGroup)
 		 end
+
 		--reset first pass every game
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
    	--start timer when scene is shown
    	--timer1 = timer.performWithDelay(delay,rain,0)
+
+    --note: use for spawning pentagons and circle
+    local spawnEnemy = Runtime:addEventListener("enterFrame", enterFrame)
 		timer1 = timer.performWithDelay(delay,scoreUp,0)
    end
 end
@@ -422,7 +422,7 @@ function scene:hide( event )
    if ( phase == "will" ) then
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
-   	--physics.stop()
+
 		--write high score to json file on game over
 		 --local data = "My app state data";
 		 --local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
@@ -431,8 +431,10 @@ function scene:hide( event )
 		 --io.close( file );
 		 --file = nil
 
-   elseif ( phase == "did" ) then
 
+   elseif ( phase == "did" ) then
+     --physics.stop()
+     transition.cancelAll()
    end
 end
 
@@ -449,6 +451,7 @@ scene:addEventListener( "destroy", scene )
 --local timer1 = timer.performWithDelay(30, update, 0)
 --local timer1 = timer.performWithDelay(30, scoreUp, 0)
 
-Runtime:addEventListener("enterFrame", enterFrame)
+
+--Runtime:addEventListener("enterFrame", enterFrame)
 
 return scene
