@@ -4,7 +4,7 @@
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
 local entity = require("entity")
-local pentagon = require("pentagon")
+--local pentagon = require("enemy")
 --local triangle = require("triangle")
 --local projectile = require("projectile")
 local widget = require("widget")
@@ -114,7 +114,81 @@ ship:play();
 
 ---------------------------------------------------------------------------------------------------
 --spawn enemies
-local function spawnPentagon()
+local function listener(obj)
+	display.remove(obj)
+	table.remove( enemies,mEnemy )
+	table.remove(enemies,sEnemy)
+end
+local function mainEnemy()
+	local chance = math.random(6)
+	if chance <= 3 then
+		local opt = {
+   			width = 256,
+    		height = 256,
+    		numFrames = 76
+		}
+
+		local sheet = graphics.newImageSheet("enemy1.png", opt)
+
+		local enemy = {
+    	-- consecutive frames sequence
+    		{
+      		name = "normalRun",
+       		start = 1,
+        	count = 76,
+        	time = 800,
+        	loopCount = 76,
+        	loopDirection = "forward"
+    		}
+		}
+
+		local mEnemy = display.newSprite(sheet, enemy )
+		mEnemy:scale( 0.15, 0.15 )
+		mEnemy.x = math.random( 0, 800 )
+		mEnemy.y = 0
+		lastPent = system.getTimer()
+		table.insert(enemies, mEnemy)
+		mEnemy:play( )
+		transition.to( mEnemy, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
+
+	
+	else
+		local opt = {
+   			width = 256,
+    		height = 256,
+    		numFrames = 76
+		}
+
+		local sheet = graphics.newImageSheet("enemy2.png", opt)
+
+		local enemy = {
+    	-- consecutive frames sequence
+    		{
+        		name = "normalrun",
+        		start = 1,
+        		count = 76,
+        		time = 800,
+        		loopCount = 76,
+        		loopDirection = "forward"
+    		}
+		}
+
+		local sEnemy = display.newSprite(sheet, enemy )
+		sEnemy:scale( 0.15, 0.15 )
+		sEnemy.x = math.random( 0, 800 )
+		sEnemy.y = 0
+		lastPent = system.getTimer()
+		table.insert(enemies, sEnemy)
+		sEnemy:play( )
+		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
+
+	end
+
+end
+
+
+
+--[[local function spawnPentagon()
     --local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 0 }, { destY = scene.player.y })
 		local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 0 }, { destY = display.actualContentHeight + 5 })
     pent:spawn(scene.view)
@@ -125,7 +199,7 @@ local function spawnPentagon()
     lastPent = system.getTimer()
 
     table.insert(enemies, pent.shape)
-end
+end]]--
 
 ---------------------------------------------------------------------------------------------------
 --start frames
@@ -144,7 +218,7 @@ local function enterFrame()
     local rp = pentChance * dt
 
     --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
-    if math.random() < rp or t - lastPent > 2000 then spawnPentagon() end
+    if math.random() < rp or t - lastPent > 500 then mainEnemy() end
 end
 
 
