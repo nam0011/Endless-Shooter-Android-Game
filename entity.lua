@@ -46,11 +46,35 @@ end
 -- Entity:spawn(grp)
 -- Spawns an Entity's DisplayObject, adding it to DisplayGroup grp if provided
 function Entity:spawn(grp)
+    
     if self.shapePath == nil then
         self.shape = display.newCircle(self.x, self.y, 15)
     else
+        local opt = {
+            width = 256,
+            height = 256,
+            numFrames = 76
+        }
+
+        local sheet = graphics.newImageSheet("enemy1.png", opt)
+
+        local enemy = {
+        -- consecutive frames sequence
+            {
+            name = "normalRun",
+            start = 1,
+            count = 76,
+            time = 800,
+            loopCount = 76,
+            loopDirection = "forward"
+            }
+        }
+
+        self.shape = display.newSprite(sheet, enemy )
+        self.shape:scale( 0.15, 0.15 )
+        self.shape:play( )
         --self.shape = display.newPolygon(self.x, self.y, self.shapePath)
-        self.shape = display.newPolygon(self.x, 0, self.shapePath)
+        --self.shape = display.newPolygon(self.x, 0, self.shapePath)
     end
 
     self.shape:setFillColor(unpack(self.color))

@@ -7,6 +7,7 @@ local entity = require("entity")
 --local pentagon = require("enemy")
 --local triangle = require("triangle")
 --local projectile = require("projectile")
+local pentagon = require("pentagon")
 local widget = require("widget")
 
 local loadsave = require( "loadsave" ) --json loader
@@ -19,6 +20,8 @@ local json = require( "json" )
 local scene = composer.newScene()
 
 --locals
+physics.start()
+physics.setDrawMode("hybrid")
 local delay = 10
 local score = -1
 local life = 1;
@@ -28,6 +31,7 @@ local triChance = 0.0035   --spawn enemy
 local lastPent = 0         --spawn enemy
 local pentChance = 0.0035  --spawn enemy
 local enemies = {}         --spawn enemy
+local GObool = false
 
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
@@ -103,17 +107,23 @@ local playerSequences = {
 local ship = display.newSprite (playerSheet, playerSequences);
 ship.anchorX = display.contentCenterX;
 ship.anchorY = display.viewableContentHeight-60;
-ship.x = display.contentCenterX+25;
+ship.x = display.contentCenterX+25
 ship.y = display.viewableContentHeight-35;
+
+
+
 ship.xScale = 0.15;
 ship.yScale = 0.15;
---physics.start()
---physics.addBody(ship, "static")
-ship.name = "ship"
+
 ship:setSequence("idle");
 ship.isSensor = true;
 --play animation based on selected frames
 ship:play();
+local hitBoxS= display.newCircle( ship.x-10, ship.y-10, 20 )
+hitBoxS.alpha = 0
+hitBoxS.name = "ship"
+physics.setGravity( 0, 0 )
+physics.addBody(hitBoxS, "kinematic")
 
 ---------------------------------------------------------------------------------------------------
 --spawn enemies
@@ -152,10 +162,15 @@ local function mainEnemy()
 		mEnemy.y = 0
 		mEnemy.onDeath = scoreUp
 		lastPent = system.getTimer()
-		--physics.addBody(mEnemy,"dynamic")
-		mEnemy.name = "first"
+		
 		table.insert(enemies, mEnemy)
 		mEnemy:play( )
+		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 20 )
+		hitBoxM.alpha = 0
+		physics.addBody(hitBoxM, "dynamic")
+		mEnemy.name = "first"
+		transition.to( hitBoxM, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
+
 		transition.to( mEnemy, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
 
 	
@@ -186,11 +201,15 @@ local function mainEnemy()
 		sEnemy.y = 0
 		sEnemy.onDeath = scoreUp
 		sEnemy.isSensor = true
-		sEnemy.name = "second"
+		
 
 		lastPent = system.getTimer()
-		--physics.addBody( sEnemy, "dynamic")
 		sEnemy:play( )
+		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 20 )
+		hitBoxSE.alpha = 0
+		physics.addBody(hitBoxSE, "dynamic")
+		hitBoxSE.name = "second"
+		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
 		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
 
 
@@ -230,7 +249,9 @@ local function enterFrame()
     local rp = pentChance * dt
 
     --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
+    if GObool == false then
     if math.random() < rp or t - lastPent > 500 then mainEnemy() end
+	end
 end
 
 
@@ -290,7 +311,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 -- Collision handler
---[[local function onLocalCollision( self, event )
+local function onLocalCollision( self, event )
 	if ( event.phase == "began" ) then
 		print( ": collision began "  )
 		--.. event.other.enemyname )
@@ -302,7 +323,7 @@ end
 	end
 end
 ship.collision = onLocalCollision
-ship:addEventListener( "collision" )]]--
+ship:addEventListener( "collision" )
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -317,10 +338,10 @@ function scene:create( event )
 
 
   --note: use to spawn circle spawn mock (circle) player for testing
-	 self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
+	 --[[self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
 	 self.player:spawn(sceneGroup)
 	 self.player.shape.markX = self.player.x
-	 self.player.onDeath = function () audio.play(sfx.death); gameOver() end
+	 self.player.onDeath = function () audio.play(sfx.death); gameOver() end]]--
 
 	 -- Button Events
 	 local moveLeft = function(event)
@@ -407,7 +428,7 @@ end  --end create scene
 ---------------------------------------------------------------------------------------------------
 -- Game Over
 function gameOver ()
-
+		GObool = true
 	  if (bIsFirstPass == true) then
 			gameoverGroup.text.isVisible = true
 			bIsFirstPass = false
@@ -420,6 +441,7 @@ function gameOver ()
 			--save to json table
 			loadsave.saveTable( loadedSettings, "settings.json" )
 		end
+
 
 	--set effects for scene transition
 	 local options = {
@@ -472,7 +494,7 @@ end
 local timer1 = timer.performWithDelay(delay,scoreUp,1)
 --show scene
 function scene:show( event )
-
+	GObool = false
    local sceneGroup = self.view
    local phase = event.phase
 
@@ -482,10 +504,10 @@ function scene:show( event )
 		 score = 0
 
      --note: use for testing with circle
-		 self.player.hp = 1
+		 --[[self.player.hp = 1
 		 if not self.player.shape then
 			 self.player:spawn(sceneGroup)
-		 end
+		 end]]--
 
 		--reset first pass every game
 		bIsFirstPass = true
@@ -535,26 +557,18 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 
-local function onGlobalCollision( event )
- 
-    if ( event.phase == "began" ) then
-    	if event.object1.name == "ship" then
-    		gameOver()
-        print( event.object1.name )
-        print(event.object2.name)
-    elseif event.object2.name =="ship"then
-    	gameOver()
-    	print(event.object2.name)
-    	print(event.object1.name)
-    end
-    end
-end
- 
-Runtime:addEventListener( "collision", onGlobalCollision )
---local timer1 = timer.performWithDelay(30, update, 0)
 --local timer1 = timer.performWithDelay(30, scoreUp, 0)
 
 
 --Runtime:addEventListener("enterFrame", enterFrame)
-
+local function onGlobalCollision( event )
+    if event.phase == "began" then
+    	if event.object1.name == "ship"then
+    		gameOver()
+    	elseif event.object2.name == "ship" then
+    		gameOver()
+    	end
+    end
+end
+Runtime:addEventListener( "collision", onGlobalCollision )
 return scene
