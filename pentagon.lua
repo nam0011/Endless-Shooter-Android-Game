@@ -21,6 +21,7 @@ if not Pentagon then
 end
 
 function Pentagon:setup(args)
+    
     if not self.path or #self.path < 1 then
         self.path = {{x = args.destX or self.x, y = args.destY or display.actualContentHeight, time = args.time or 3000}}
     end

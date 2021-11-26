@@ -107,6 +107,9 @@ ship.x = display.contentCenterX+25;
 ship.y = display.viewableContentHeight-35;
 ship.xScale = 0.15;
 ship.yScale = 0.15;
+--physics.start()
+--physics.addBody(ship, "static")
+ship.name = "ship"
 ship:setSequence("idle");
 ship.isSensor = true;
 --play animation based on selected frames
@@ -119,6 +122,7 @@ local function listener(obj)
 	table.remove( enemies,mEnemy )
 	table.remove(enemies,sEnemy)
 end
+
 local function mainEnemy()
 	local chance = math.random(6)
 	if chance <= 3 then
@@ -146,7 +150,10 @@ local function mainEnemy()
 		mEnemy:scale( 0.15, 0.15 )
 		mEnemy.x = math.random( 0, 800 )
 		mEnemy.y = 0
+		mEnemy.onDeath = scoreUp
 		lastPent = system.getTimer()
+		--physics.addBody(mEnemy,"dynamic")
+		mEnemy.name = "first"
 		table.insert(enemies, mEnemy)
 		mEnemy:play( )
 		transition.to( mEnemy, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
@@ -177,10 +184,15 @@ local function mainEnemy()
 		sEnemy:scale( 0.15, 0.15 )
 		sEnemy.x = math.random( 0, 800 )
 		sEnemy.y = 0
+		sEnemy.onDeath = scoreUp
+		sEnemy.isSensor = true
+		sEnemy.name = "second"
+
 		lastPent = system.getTimer()
-		table.insert(enemies, sEnemy)
+		--physics.addBody( sEnemy, "dynamic")
 		sEnemy:play( )
 		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
+
 
 	end
 
@@ -278,7 +290,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 -- Collision handler
-local function onLocalCollision( self, event )
+--[[local function onLocalCollision( self, event )
 	if ( event.phase == "began" ) then
 		print( ": collision began "  )
 		--.. event.other.enemyname )
@@ -290,7 +302,7 @@ local function onLocalCollision( self, event )
 	end
 end
 ship.collision = onLocalCollision
-ship:addEventListener( "collision" )
+ship:addEventListener( "collision" )]]--
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -522,6 +534,23 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
+
+local function onGlobalCollision( event )
+ 
+    if ( event.phase == "began" ) then
+    	if event.object1.name == "ship" then
+    		gameOver()
+        print( event.object1.name )
+        print(event.object2.name)
+    elseif event.object2.name =="ship"then
+    	gameOver()
+    	print(event.object2.name)
+    	print(event.object1.name)
+    end
+    end
+end
+ 
+Runtime:addEventListener( "collision", onGlobalCollision )
 --local timer1 = timer.performWithDelay(30, update, 0)
 --local timer1 = timer.performWithDelay(30, scoreUp, 0)
 
