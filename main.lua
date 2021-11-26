@@ -8,7 +8,8 @@
 local composer = require("composer")
 
 sfx = {
-  crash = audio.loadSound("death.wav")
+  bg = audio.loadSound("background.wav"),
+  death = audio.loadSound("explosion.mp3")
 }
 font = native.systemFont
 

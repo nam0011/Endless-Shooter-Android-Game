@@ -21,7 +21,7 @@ local scene = composer.newScene()
 
 --locals
 physics.start()
-physics.setDrawMode("hybrid")
+physics.setDrawMode("normal")
 local delay = 10
 local score = -1
 local life = 1;
@@ -162,7 +162,7 @@ local function mainEnemy()
 		mEnemy.y = 0
 		mEnemy.onDeath = scoreUp
 		lastPent = system.getTimer()
-		
+
 		table.insert(enemies, mEnemy)
 		mEnemy:play( )
 		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 20 )
@@ -173,7 +173,7 @@ local function mainEnemy()
 
 		transition.to( mEnemy, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
 
-	
+
 	else
 		local opt = {
    			width = 256,
@@ -201,7 +201,7 @@ local function mainEnemy()
 		sEnemy.y = 0
 		sEnemy.onDeath = scoreUp
 		sEnemy.isSensor = true
-		
+
 
 		lastPent = system.getTimer()
 		sEnemy:play( )
@@ -340,8 +340,8 @@ function scene:create( event )
   --note: use to spawn circle spawn mock (circle) player for testing
 	 --[[self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
 	 self.player:spawn(sceneGroup)
-	 self.player.shape.markX = self.player.x
-	 self.player.onDeath = function () audio.play(sfx.death); gameOver() end]]--
+	 self.player.shape.markX = self.player.x]]--
+	 --self.player.onDeath = function () audio.play(sfx.death); gameOver() end
 
 	 -- Button Events
 	 local moveLeft = function(event)
@@ -437,6 +437,7 @@ function gameOver ()
     	if (score > loadedSettings.highScore) then
 				loadedSettings.highScore = score;
 			end
+      audio.play(sfx.death);
 			highLabel.text = "High Score: " .. loadedSettings.highScore
 			--save to json table
 			loadsave.saveTable( loadedSettings, "settings.json" )
@@ -500,7 +501,8 @@ function scene:show( event )
 
    if ( phase == "will" ) then
 		 physics.start()
-
+     -- Play the background music on channel 1, loop infinitely, and fade in
+     local bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
 		 score = 0
 
      --note: use for testing with circle
@@ -530,6 +532,7 @@ function scene:hide( event )
    if ( phase == "will" ) then
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
+    audio.fadeOut( { channel=1, time=5000 } )
 
 		--write high score to json file on game over
 		 --local data = "My app state data";
