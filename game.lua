@@ -4,9 +4,6 @@
 --	  Author:   Natalie Bush, nlb0017@uah.edu, Nathan Moore, Aaron Mendez. Created:  2021-11-08
 ---------------------------------------------------------------------------------------------------
 local entity = require("entity")
---local pentagon = require("enemy")
---local triangle = require("triangle")
---local projectile = require("projectile")
 local pentagon = require("pentagon")
 local widget = require("widget")
 
@@ -22,6 +19,7 @@ local scene = composer.newScene()
 system.activate( "multitouch" )
 --locals
 physics.start()
+physics.setContinuous( enabled )
 physics.setDrawMode("normal")
 local delay = 10
 local score = -1
@@ -29,7 +27,7 @@ local life = 1;
 local runtime = 0
 local scrollSpeed = 1.4
 local triChance = 0.0035   --spawn enemy
-local lastPent = 0         --spawn enemy
+local lastEnemy = 0         --spawn enemy
 local pentChance = 0.0035  --spawn enemy
 local enemies = {}         --spawn enemy
 local GObool = false
@@ -44,14 +42,14 @@ background.y = display.contentCenterY
 background:toBack()
 
 --left and right boundary
-local left = display.newRect(0, 0, 1, display.contentHeight)
+local left = display.newRect(-40, 0, 1, display.contentHeight)
 left.anchorX = 0; left.anchorY = 0
 left.isVisible = false
-local right = display.newRect(display.contentWidth, 0, 1, display.contentHeight)
+local right = display.newRect(display.viewableContentWidth+40, 0, 1, display.contentHeight)
 right.anchorX = 0; right.anchorY = 0
 right.isVisible = false
-physics.addBody(left, 'static', { isSensor=true } )
-physics.addBody(right, 'static', { isSensor=true } )
+physics.addBody(left, "static", { isSensor=true } )
+physics.addBody(right, "static", { isSensor=true } )
 
 --level 1 scrollable background
 local function addScrollableBg()
@@ -124,124 +122,132 @@ ship.x = display.contentCenterX+25
 ship.y = display.viewableContentHeight-35;
 ship.xScale = 0.15;
 ship.yScale = 0.15;
+ship.isSensor = true
 ship:setSequence("idle");
-ship.isSensor = true;
-ship.name = "ship"
 physics.addBody( ship, "kinematic" )
 --play animation based on selected frames
 ship:play();
-local hitBoxS= display.newCircle( ship.x-10, ship.y-10, 20 )
+local hitBoxS= display.newCircle( ship.x-10, ship.y-10, 10 )
 hitBoxS.alpha = 0
 hitBoxS.name = "ship"
+hitBoxS.isSensor = true
 physics.setGravity( 0, 0 )
 physics.addBody(hitBoxS, "kinematic")
 
 ---------------------------------------------------------------------------------------------------
 --spawn enemies
-local function listener(obj)
+local function removeEnemy(obj)
 	display.remove(obj)
-	table.remove( enemies,mEnemy )
-	table.remove(enemies,sEnemy)
 end
 
 local function mainEnemy()
-	local chance = math.random(6)
-	if chance <= 3 then
-		local opt = {
-   			width = 256,
-    		height = 256,
-    		numFrames = 76
-		}
 
-		local sheet = graphics.newImageSheet("enemy1.png", opt)
+  if (math.random(7) > 3) then
+    local mFrames =
+    {
+    frames = {
+          { x = 8, y = 0, width = 41, height = 58},
+          { x = 66, y = 1, width = 41, height = 57},
+          { x = 123, y = 0, width = 41, height = 58},
+          { x = 183, y = 0, width = 38, height = 58},
+          { x = 242, y = 0, width = 36, height = 58},
+          { x = 300, y = 0, width = 36, height = 58},
+          { x = 359, y = 0, width = 36, height = 58},
+          { x = 418, y = 0, width = 35, height = 58},
+          { x = 477, y = 1, width = 34, height = 57},
+          { x = 534, y = 0, width = 36, height = 58},
+          { x = 594, y = 1, width = 35, height = 57},
+          { x = 654, y = 0, width = 31, height = 58},
+          { x = 709, y = 0, width = 35, height = 58},
+          { x = 767, y = 1, width = 37, height = 57},
+          { x = 825, y = 0, width = 37, height = 58},
+          { x = 881, y = 0, width = 39, height = 58},
+          { x = 940, y = 0, width = 37, height = 58},
+          { x = 997, y = 0, width = 39, height = 58},
+          { x = 1056, y = 0, width = 38, height = 58}
+        --  { x = 1116, y = 1, width = 35, height = 57}
+          --{ x = 1173, y = 1, width = 36, height = 57},
+          --{ x = 1231, y = 0, width = 35, height = 58}
+      }
+    }
 
-		local enemy = {
-    	-- consecutive frames sequence
-    		{
-      		name = "normalRun",
-       		start = 1,
-        	count = 76,
-        	time = 800,
-        	loopCount = 76,
-        	loopDirection = "forward"
-    		}
-		}
+    local mSheet = graphics.newImageSheet("enemyDrone00.png", mFrames)
+    local mSequences = {
+    	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 1000}
+    }
 
-		local mEnemy = display.newSprite(sheet, enemy )
-		mEnemy:scale( 0.15, 0.15 )
+		local mEnemy = display.newSprite(mSheet, mSequences )
 		mEnemy.x = math.random( 0, 800 )
 		mEnemy.y = 0
-		mEnemy.onDeath = scoreUp
-		lastPent = system.getTimer()
+    mEnemy:scale( 0.55, 0.55 )
+    mEnemy:toFront()
+    mEnemy:setSequence("idle");
+    mEnemy:play()
 
+    mEnemy.onDeath = scoreUp
+		lastEnemy = system.getTimer()
 		table.insert(enemies, mEnemy)
-		mEnemy:play( )
-		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 20 )
+
+		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 15 )
 		hitBoxM.alpha = 0
 		physics.addBody(hitBoxM, "dynamic")
-		mEnemy.name = "first"
-		transition.to( hitBoxM, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
-
-		transition.to( mEnemy, {x=mEnemy.x,y=display.contentHeight,time=2000, onComplete = listener})
-
+		hitBoxM.name = "enemy"
+		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
+		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
 
 	else
-		local opt = {
-   			width = 256,
-    		height = 256,
-    		numFrames = 76
-		}
+    local sFrames =
+    {
+    frames = {
+          { x = 14, y = 0, width = 35, height = 64},
+          { x = 78, y = 0, width = 37, height = 64},
+          { x = 145, y = 0, width = 32, height = 64},
+          { x = 210, y = 0, width = 30, height = 64},
+          { x = 273, y = 0, width = 31, height = 64},
+          { x = 336, y = 0, width = 30, height = 64},
+          { x = 401, y = 0, width = 29, height = 64},
+          { x = 465, y = 0, width = 32, height = 64},
+          { x = 531, y = 0, width = 29, height = 64},
+          { x = 597, y = 0, width = 27, height = 64},
+          { x = 661, y = 0, width = 25, height = 64},
+          { x = 726, y = 0, width = 27, height = 64},
+          { x = 792, y = 0, width = 24, height = 64},
+          { x = 854, y = 0, width = 27, height = 64},
+          { x = 919, y = 0, width = 26, height = 64},
+          { x = 983, y = 0, width = 26, height = 64},
+          { x = 1047, y = 0, width = 26, height = 64},
+          { x = 1110, y = 0, width = 29, height = 64},
+          { x = 1174, y = 0, width = 29, height = 64}
+      }
+    }
 
-		local sheet = graphics.newImageSheet("enemy2.png", opt)
+    local sSheet = graphics.newImageSheet("enemyTall00.png",sFrames)
+    local sSequences = {
+    	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 900}
+    }
 
-		local enemy = {
-    	-- consecutive frames sequence
-    		{
-        		name = "normalrun",
-        		start = 1,
-        		count = 76,
-        		time = 800,
-        		loopCount = 76,
-        		loopDirection = "forward"
-    		}
-		}
-
-		local sEnemy = display.newSprite(sheet, enemy )
-		sEnemy:scale( 0.15, 0.15 )
-		sEnemy.x = math.random( 0, 800 )
+		local sEnemy = display.newSprite(sSheet, sSequences )
+		sEnemy.x = math.random( display.contentWidth )
 		sEnemy.y = 0
-		sEnemy.onDeath = scoreUp
-		sEnemy.isSensor = true
+    sEnemy:scale( 0.80, 0.65 )
+    sEnemy:toFront()
+    sEnemy:setSequence("idle");
+    sEnemy:play()
 
+    sEnemy.onDeath = scoreUp
+		lastEnemy = system.getTimer()
+		table.insert(enemies, sEnemy)
 
-		lastPent = system.getTimer()
-		sEnemy:play( )
-		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 20 )
+		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 15 )
 		hitBoxSE.alpha = 0
 		physics.addBody(hitBoxSE, "dynamic")
-		hitBoxSE.name = "second"
-		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
-		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = listener})
+		hitBoxSE.name = "enemy"
+		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
+		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
 
-
-	end
+	  end
 
 end
-
-
-
---[[local function spawnPentagon()
-    --local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 0 }, { destY = scene.player.y })
-		local pent = pentagon:new({ x = math.random(25, display.contentWidth - 25), y = 0 }, { destY = display.actualContentHeight + 5 })
-    pent:spawn(scene.view)
-    pent:move()
-
-    pent.shape.isFixedRotation = true
-    pent.onDeath = scoreUp
-    lastPent = system.getTimer()
-
-    table.insert(enemies, pent.shape)
-end]]--
 
 ---------------------------------------------------------------------------------------------------
 --start frames
@@ -261,7 +267,7 @@ local function enterFrame()
 
     --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
     if GObool == false then
-    if math.random() < rp or t - lastPent > 500 then mainEnemy() end
+    if math.random() < rp or t - lastEnemy > 500 then mainEnemy() end
 	end
 end
 
@@ -318,24 +324,6 @@ local function scoreUp ()
 		scoreLabel.text = "Score: " .. score
     --audio.play(sfx.point)
 end
-
-
----------------------------------------------------------------------------------------------------
--- Collision handler
-local function onLocalCollision( self, event )
-	if ( event.phase == "began" ) then
-		print( ": collision began "  )
-		--.. event.other.enemyname )
-	elseif ( event.phase == "ended" ) then
-
-		gameOver()
-		--print( self.myname .. ": collision ended with "  )
-		--.. event.other.enemyname )
-	end
-end
-ship.collision = onLocalCollision
-ship:addEventListener( "collision" )
-
 
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
@@ -400,8 +388,10 @@ function scene:create( event )
                   -- Take proper action based on button ID
                   if ( buttonGroup.activeButton.ID == "left" ) then
                       ship:setLinearVelocity( -100, 0 )
+                      hitBoxS:setLinearVelocity( -100, 0 )
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
                       ship:setLinearVelocity( 100, 0 )
+                      hitBoxS:setLinearVelocity( 100, 0 )
                   end
               end
               return true
@@ -417,6 +407,7 @@ function scene:create( event )
           buttonGroup.activeButton = nil
           -- Stop the action
           ship:setLinearVelocity( 0, 0 )
+          hitBoxS:setLinearVelocity( 0, 0 )
           ship:setSequence("idle");
           return true
       end
@@ -433,8 +424,6 @@ function scene:create( event )
 	 	end
 	 end
 
-
-
 			--creation of powerButton
 			local powerButton = display.newImage("powerButtonRing.png")
 			   powerButton.xScale = 1
@@ -446,7 +435,6 @@ function scene:create( event )
 				 powerButton.alpha = 0.7
 				 sceneGroup:insert(powerButton);
 				 powerButton:addEventListener( "touch", changeColor )
-
 
   --initialize score value
   	scoreLabel.text = "Score: " .. score
@@ -470,6 +458,7 @@ function gameOver ()
 		GObool = true
     --stop ship if mid-flight
     ship:setLinearVelocity( 0, 0 )
+    hitBoxS:setLinearVelocity( 0, 0 )
     ship:setSequence("idle");
 
 
@@ -549,15 +538,15 @@ function scene:hide( event )
    	timer.cancel(timer1)
     audio.fadeOut( { channel=1, time=4000 } )
 
-		--write high score to json file on game over
-		 --local data = "My app state data";
-		 --local path = system.pathForFile( "xglider.txt", system.DocumentsDirectory );
-		 --local file = io.open( path, "w" );
-		 --file:write( serializedString );
-		 --io.close( file );
-		 --file = nil
+    physics.pause()
 
+    for i, v in ipairs(enemies) do
+      if v.removeSelf then
+        v:removeSelf()
+      end
+    end
 
+    enemies = {}
    elseif ( phase == "did" ) then
      --physics.stop()
      transition.cancelAll()
@@ -583,11 +572,14 @@ scene:addEventListener( "destroy", scene )
 local function onGlobalCollision( event )
     if event.phase == "began" then
     	if event.object1.name == "ship" then
-    		gameOver()
-    	elseif event.object2.name == "ship" then
-    		gameOver()
+        if event.object2.name == "enemy" then
+    		  gameOver()
+        end
+    	--elseif event.object2.name == "ship" then
+    		--gameOver()
     	end
     end
 end
 Runtime:addEventListener( "collision", onGlobalCollision )
+
 return scene
