@@ -20,7 +20,7 @@ system.activate( "multitouch" )
 --locals
 physics.start()
 physics.setContinuous( enabled )
-physics.setDrawMode("hybrid")
+physics.setDrawMode("normal")
 local delay = 10
 local score = -1
 local life = 1;
@@ -128,7 +128,7 @@ ship:setSequence("idle");
 physics.addBody( ship, "kinematic" )
 --play animation based on selected frames
 ship:play();
-local hitBoxS= display.newCircle( ship.x-10, ship.y-10, 10 )
+hitBoxS= display.newCircle( ship.x-10, ship.y-10, 10 )
 hitBoxS.alpha = 0
 hitBoxS.name = "ship"
 hitBoxS.isSensor = true
@@ -515,7 +515,7 @@ function gameOver ()
 
  end
 
- 
+
 
 ---------------------------------------------------------------------------------------------------
 -- Updating whatever, may not need
@@ -591,9 +591,9 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 local function addHB( event )
-	print(hitBoxS.name)
+	--print(hitBoxS.name)
 	hitBoxS.name = "ship"
-	print(hitBoxS.name)
+	--print(hitBoxS.name)
 end
 local function removeHB( event )
 	hitBoxS.name = "invinc"
@@ -607,9 +607,8 @@ local function onGlobalCollision( event )
         if event.object2.name == "enemy" then
     		  gameOver()
     	  elseif event.object2.name == "pup" then
-    		--todo: add poweerup functionality
-    		powerButton.alpha = 1
-    		powerButton:addEventListener( "touch", removeHB )
+      		powerButton.alpha = 1
+      		powerButton:addEventListener( "touch", removeHB )
     	  end
       end
     end
