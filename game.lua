@@ -264,8 +264,8 @@ local function mainEnemy()
 		hitBoxSE.alpha = 0
 		physics.addBody(hitBoxSE, "dynamic")
 		hitBoxSE.name = "enemy"
-		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
-		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
+		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
+		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
 
 	  end
 
@@ -533,7 +533,7 @@ function scene:show( event )
    if ( phase == "will" ) then
 		 physics.start()
      -- Play the background music on channel 1, loop infinitely, and fade in
-     local bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
+     bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
 		 score = 0
 
 		--reset first pass every game
@@ -558,7 +558,6 @@ function scene:hide( event )
      --reset ship position
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
-    audio.fadeOut( { channel=1, time=4000 } )
 
     physics.pause()
 
