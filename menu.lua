@@ -25,6 +25,8 @@ local function play (event)
      effect = "fade",
      time = 500
    }
+   score = 0
+   ship.x = display.contentCenterX+25
    composer.gotoScene("game", ops)
 end
 

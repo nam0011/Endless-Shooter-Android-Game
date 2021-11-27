@@ -43,7 +43,7 @@ background.x = display.contentCenterX
 background.y = display.contentCenterY
 background:toBack()
 
---arena
+--left and right boundary
 local left = display.newRect(0, 0, 1, display.contentHeight)
 left.anchorX = 0; left.anchorY = 0
 left.isVisible = false
@@ -53,6 +53,7 @@ right.isVisible = false
 physics.addBody(left, 'static', { isSensor=true } )
 physics.addBody(right, 'static', { isSensor=true } )
 
+--level 1 scrollable background
 local function addScrollableBg()
     local bgImage = { type="image", filename="background.png" }
 
@@ -69,6 +70,7 @@ local function addScrollableBg()
     bg2.y = display.contentCenterY - display.actualContentHeight
 end
 
+--move background
 local function moveBg(dt)
     bg1.y = bg1.y + scrollSpeed * dt
     bg2.y = bg2.y + scrollSpeed * dt
@@ -115,7 +117,7 @@ local playerSequences = {
 }
 
 -- set sprite animation and initial state
-local ship = display.newSprite (playerSheet, playerSequences);
+ship = display.newSprite (playerSheet, playerSequences);
 ship.anchorX = display.contentCenterX;
 ship.anchorY = display.viewableContentHeight-60;
 ship.x = display.contentCenterX+25
@@ -401,6 +403,7 @@ function scene:create( event )
                       ship:setLinearVelocity( -100, 0 )
                     elseif (ship.x < 1 ) then
                       ship:setLinearVelocity( 0, 0 )
+                      ship:setSequence("idle");
                     end
 
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
@@ -408,6 +411,7 @@ function scene:create( event )
                       ship:setLinearVelocity( 100, 0 )
                     elseif (ship.x > display.viewableContentWidth-1 ) then
                       ship:setLinearVelocity( 0, 0 )
+                      ship:setSequence("idle");
                     end
                   end
               end
@@ -418,8 +422,10 @@ function scene:create( event )
         --stay within the screen
         if ( ( buttonGroup.activeButton.ID == "right" ) and (ship.x > display.viewableContentWidth-1 ) ) then
           ship:setLinearVelocity( 0, 0 )
+          ship:setSequence("idle");
         elseif( ( buttonGroup.activeButton.ID == "left" ) and (ship.x < 1 ) ) then
           ship:setLinearVelocity( 0, 0 )
+          ship:setSequence("idle");
         end
       elseif ( event.phase == "ended" and buttonGroup.activeButton ~= nil ) then
 
@@ -429,6 +435,7 @@ function scene:create( event )
           buttonGroup.activeButton = nil
           -- Stop the action
           ship:setLinearVelocity( 0, 0 )
+          ship:setSequence("idle");
           return true
       end
   end
@@ -481,6 +488,7 @@ function gameOver ()
 		GObool = true
     --stop ship if mid-flight
     ship:setLinearVelocity( 0, 0 )
+    ship:setSequence("idle");
 
 
 	  if (bIsFirstPass == true) then
@@ -535,12 +543,6 @@ function scene:show( event )
      local bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
 		 score = 0
 
-     --note: use for testing with circle
-		 --[[self.player.hp = 1
-		 if not self.player.shape then
-			 self.player:spawn(sceneGroup)
-		 end]]--
-
 		--reset first pass every game
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
@@ -561,7 +563,6 @@ function scene:hide( event )
 
    if ( phase == "will" ) then
      --reset ship position
-     ship.x = display.contentCenterX+25
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
     audio.fadeOut( { channel=1, time=4000 } )
