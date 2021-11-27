@@ -141,8 +141,8 @@ local function removeEnemy(obj)
 end
 
 local function mainEnemy()
-
-  if (math.random(7) > 3) then
+  local chance = math.random(9)
+  if (chance > 4) then
     local mFrames =
     {
     frames = {
@@ -195,7 +195,29 @@ local function mainEnemy()
 		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
 		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
 
-	else
+	elseif (chance < 2) then
+    --powerup
+    -- set sprite animation and initial state
+    local pup = display.newImage("powerUp.png")
+       pup.xScale = 0.55
+       pup.yScale = 0.55
+       pup.x = math.random( 0, 800 )
+       pup.y = 0
+       pup.alpha = 0.7
+
+    pup.isSensor = true
+    physics.addBody( pup, "dynamic" )
+
+		lastEnemy = system.getTimer()
+		table.insert(enemies, pup)
+
+		local hitBoxP= display.newCircle( pup.x, pup.y, 15 )
+		hitBoxP.alpha = 0
+		physics.addBody(hitBoxP, "dynamic")
+		hitBoxP.name = "pup"
+		transition.to( hitBoxP, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
+		transition.to( pup, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
+  else
     local sFrames =
     {
     frames = {
@@ -565,19 +587,16 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 
---local timer1 = timer.performWithDelay(30, scoreUp, 0)
-
-
 --Runtime:addEventListener("enterFrame", enterFrame)
 local function onGlobalCollision( event )
     if event.phase == "began" then
     	if event.object1.name == "ship" then
         if event.object2.name == "enemy" then
     		  gameOver()
-        end
-    	--elseif event.object2.name == "ship" then
-    		--gameOver()
-    	end
+    	  elseif event.object2.name == "pup" then
+    		--todo: add poweerup functionality
+    	  end
+      end
     end
 end
 Runtime:addEventListener( "collision", onGlobalCollision )
