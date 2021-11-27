@@ -18,7 +18,8 @@ local composer = require( "composer" )
 local json = require( "json" )
 
 local scene = composer.newScene()
-
+-- Activate multitouch
+system.activate( "multitouch" )
 --locals
 physics.start()
 physics.setDrawMode("normal")
@@ -41,6 +42,16 @@ local background = display.newImageRect( "background.png",
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 background:toBack()
+
+--arena
+local left = display.newRect(0, 0, 1, display.contentHeight)
+left.anchorX = 0; left.anchorY = 0
+left.isVisible = false
+local right = display.newRect(display.contentWidth, 0, 1, display.contentHeight)
+right.anchorX = 0; right.anchorY = 0
+right.isVisible = false
+physics.addBody(left, 'static', { isSensor=true } )
+physics.addBody(right, 'static', { isSensor=true } )
 
 local function addScrollableBg()
     local bgImage = { type="image", filename="background.png" }
@@ -109,14 +120,12 @@ ship.anchorX = display.contentCenterX;
 ship.anchorY = display.viewableContentHeight-60;
 ship.x = display.contentCenterX+25
 ship.y = display.viewableContentHeight-35;
-
-
-
 ship.xScale = 0.15;
 ship.yScale = 0.15;
-
 ship:setSequence("idle");
 ship.isSensor = true;
+ship.name = "ship"
+physics.addBody( ship, "kinematic" )
 --play animation based on selected frames
 ship:play();
 local hitBoxS= display.newCircle( ship.x-10, ship.y-10, 20 )
@@ -325,6 +334,7 @@ end
 ship.collision = onLocalCollision
 ship:addEventListener( "collision" )
 
+
 ---------------------------------------------------------------------------------------------------
 -- Create Scene
 --create initial scene
@@ -336,33 +346,94 @@ function scene:create( event )
 
 	 addScrollableBg()
 
+  --create button group
+  local buttonGroup = display.newGroup()
 
-  --note: use to spawn circle spawn mock (circle) player for testing
-	 --[[self.player = entity:new({ x = display.contentCenterX+25, y = display.viewableContentHeight-35, damagers = { projectile = true, enemy = true }, tag = "player", hp = 1 })
-	 self.player:spawn(sceneGroup)
-	 self.player.shape.markX = self.player.x]]--
-	 --self.player.onDeath = function () audio.play(sfx.death); gameOver() end
+  local leftButton = display.newImageRect( buttonGroup, "leftButtonShape.png", 50, 50 )
+  leftButton.x, leftButton.y = 0, 270
+  leftButton.canSlideOn = true
+  leftButton.ID = "left"
+  leftButton:toBack()
+  leftButton.alpha = 0.7
+  --sceneGroup:insert(leftButton);
+  buttonGroup:insert(leftButton);
 
-	 -- Button Events
-	 local moveLeft = function(event)
-	 	local t = event.target
-	 	local phase = event.phase
+  local rightButton = display.newImageRect( buttonGroup, "rightButtonShape.png", 50, 50 )
+  rightButton.x, rightButton.y = 480, 270
+  rightButton.canSlideOn = true
+  rightButton.ID = "right"
+  rightButton:toBack()
+  rightButton.alpha = 0.7
+  buttonGroup:insert(rightButton);
 
-	 	if "began" == phase then
-	 	ship:setSequence("left");
-	 		ship.x = ship.x - 1
-	 	end
-	 end
+  sceneGroup:insert(buttonGroup);
 
-	 local moveRight = function(event)
-	 	local t = event.target
-	 	local phase = event.phase
+  local function detectButton( event )
 
-	 	if "began" == phase then
-	 		ship:setSequence("right");
-	 		ship.x = ship.x + 1
-	 	end
-	 end
+      for i = 1,buttonGroup.numChildren do
+          local bounds = buttonGroup[i].contentBounds
+          if (
+              event.x > bounds.xMin and
+              event.x < bounds.xMax and
+              event.y > bounds.yMin and
+              event.y < bounds.yMax
+          ) then
+              return buttonGroup[i]
+          end
+      end
+  end
+
+  local function handleController( event )
+
+      local touchOverButton = detectButton( event )
+
+      if ( event.phase == "began" ) then
+
+          if ( touchOverButton ~= nil ) then
+              if not ( buttonGroup.touchID ) then
+                  -- Set/isolate this touch ID
+                  buttonGroup.touchID = event.id
+                  -- Set the active button
+                  buttonGroup.activeButton = touchOverButton
+                  -- Take proper action based on button ID
+                  if ( buttonGroup.activeButton.ID == "left" ) then
+                    if (ship.x > 0 ) then
+                      ship:setLinearVelocity( -100, 0 )
+                    elseif (ship.x < 1 ) then
+                      ship:setLinearVelocity( 0, 0 )
+                    end
+
+                  elseif ( buttonGroup.activeButton.ID == "right" ) then
+                    if (ship.x < display.viewableContentWidth ) then
+                      ship:setLinearVelocity( 100, 0 )
+                    elseif (ship.x > display.viewableContentWidth-1 ) then
+                      ship:setLinearVelocity( 0, 0 )
+                    end
+                  end
+              end
+              return true
+          end
+
+      elseif ( event.phase == "moved" ) then
+        --stay within the screen
+        if ( ( buttonGroup.activeButton.ID == "right" ) and (ship.x > display.viewableContentWidth-1 ) ) then
+          ship:setLinearVelocity( 0, 0 )
+        elseif( ( buttonGroup.activeButton.ID == "left" ) and (ship.x < 1 ) ) then
+          ship:setLinearVelocity( 0, 0 )
+        end
+      elseif ( event.phase == "ended" and buttonGroup.activeButton ~= nil ) then
+
+          -- Release this touch ID
+          buttonGroup.touchID = nil
+          -- Set that no button is active
+          buttonGroup.activeButton = nil
+          -- Stop the action
+          ship:setLinearVelocity( 0, 0 )
+          return true
+      end
+  end
+  rightButton:addEventListener( "touch", handleController )
+  leftButton:addEventListener( "touch", handleController )
 
 	 local changeColor = function(event)
 	 	local t = event.target
@@ -372,29 +443,8 @@ function scene:create( event )
 
 	 	end
 	 end
-		--creation of left button
-		local leftButton = display.newImage("leftButtonShape.png")
-		   leftButton.xScale = 0.75
-		   leftButton.yScale = 0.75
-		   leftButton.x = 0
-		   leftButton.y = 270
-		  --leftButton:setFillColor(1,0,0,.5)
-			leftButton:toBack()
-			leftButton.alpha = 0.7
-			sceneGroup:insert(leftButton);
-			leftButton:addEventListener( "touch", moveLeft )
 
-		--creation of right button
-		local rightButton = display.newImage("rightButtonShape.png")
-		   rightButton.xScale = 0.75
-		   rightButton.yScale = 0.75
-		   rightButton.x = 480
-		   rightButton.y = 270
-		   --rightButton:setFillColor(1,0,0,.5)
-			rightButton:toBack()
-			rightButton.alpha = 0.7
-			sceneGroup:insert(rightButton);
-			rightButton:addEventListener( "touch", moveRight )
+
 
 			--creation of powerButton
 			local powerButton = display.newImage("powerButtonRing.png")
@@ -429,6 +479,10 @@ end  --end create scene
 -- Game Over
 function gameOver ()
 		GObool = true
+    --stop ship if mid-flight
+    ship:setLinearVelocity( 0, 0 )
+
+
 	  if (bIsFirstPass == true) then
 			gameoverGroup.text.isVisible = true
 			bIsFirstPass = false
@@ -437,7 +491,8 @@ function gameOver ()
     	if (score > loadedSettings.highScore) then
 				loadedSettings.highScore = score;
 			end
-      audio.play(sfx.death);
+      audio.play(sfx.death, { channel=2 } );
+      audio.setMaxVolume( 0.65, { channel=2 } )
 			highLabel.text = "High Score: " .. loadedSettings.highScore
 			--save to json table
 			loadsave.saveTable( loadedSettings, "settings.json" )
@@ -455,31 +510,6 @@ function gameOver ()
 		timer.performWithDelay(400000, composer.gotoScene("menu", options), 1)
 
  end
----------------------------------------------------------------------------------------------------
--- raindrops
---[[local function rain (event)
-	if (life==0) then return end;
-	local drop = display.newRect(math.random(0, display.contentWidth), 0, 5, 20);
-	physics.addBody ( drop, { density=1, friction=2, bounce=0 }, "dynamic" );--( crate, { density=3.0, friction=0.5, bounce=0.3 } )
-	drop:setFillColor (math.random(), math.random(), 0.5);
-	drop:applyForce(0,-1, drop.x, drop.y);
-	drop.isSensor = true;
-
-	local timeVal = 1500;
-	local function dropHandler (event)
-		if (event.phase == "ended") then
-			event.target:removeEventListener("collision", dropHandler);
-			event.target:removeSelf();
-			event.target = nil;
-			if (timeVal > 0) then
-				timeVal = timeVal - 10
-			end
-		end
-	end
-	drop:addEventListener("collision", dropHandler);
-
-end]]
-
 
 ---------------------------------------------------------------------------------------------------
 -- Updating whatever, may not need
@@ -530,9 +560,11 @@ function scene:hide( event )
    local phase = event.phase
 
    if ( phase == "will" ) then
+     --reset ship position
+     ship.x = display.contentCenterX+25
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
-    audio.fadeOut( { channel=1, time=5000 } )
+    audio.fadeOut( { channel=1, time=4000 } )
 
 		--write high score to json file on game over
 		 --local data = "My app state data";
@@ -552,6 +584,7 @@ end
 --destroy scene
 function scene:destroy( event )
    local sceneGroup = self.view
+   --composer.removeScene( self.view )
 end
 
 --listen for these events
@@ -566,7 +599,7 @@ scene:addEventListener( "destroy", scene )
 --Runtime:addEventListener("enterFrame", enterFrame)
 local function onGlobalCollision( event )
     if event.phase == "began" then
-    	if event.object1.name == "ship"then
+    	if event.object1.name == "ship" then
     		gameOver()
     	elseif event.object2.name == "ship" then
     		gameOver()
