@@ -593,10 +593,12 @@ scene:addEventListener( "destroy", scene )
 local function addHB( event )
 	--print(hitBoxS.name)
 	hitBoxS.name = "ship"
+  hitBoxS.alpha = 0
 	--print(hitBoxS.name)
 end
 local function removeHB( event )
 	hitBoxS.name = "invinc"
+  hitBoxS.alpha = 0.5
 	timer.performWithDelay( 5000, addHB,1)
 end
 
