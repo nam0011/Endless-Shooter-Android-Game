@@ -399,34 +399,16 @@ function scene:create( event )
                   buttonGroup.activeButton = touchOverButton
                   -- Take proper action based on button ID
                   if ( buttonGroup.activeButton.ID == "left" ) then
-                    if (ship.x > 0 ) then
                       ship:setLinearVelocity( -100, 0 )
-                    elseif (ship.x < 1 ) then
-                      ship:setLinearVelocity( 0, 0 )
-                      ship:setSequence("idle");
-                    end
-
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
-                    if (ship.x < display.viewableContentWidth ) then
                       ship:setLinearVelocity( 100, 0 )
-                    elseif (ship.x > display.viewableContentWidth-1 ) then
-                      ship:setLinearVelocity( 0, 0 )
-                      ship:setSequence("idle");
-                    end
                   end
               end
               return true
           end
 
       elseif ( event.phase == "moved" ) then
-        --stay within the screen
-        if ( ( buttonGroup.activeButton.ID == "right" ) and (ship.x > display.viewableContentWidth-1 ) ) then
-          ship:setLinearVelocity( 0, 0 )
-          ship:setSequence("idle");
-        elseif( ( buttonGroup.activeButton.ID == "left" ) and (ship.x < 1 ) ) then
-          ship:setLinearVelocity( 0, 0 )
-          ship:setSequence("idle");
-        end
+
       elseif ( event.phase == "ended" and buttonGroup.activeButton ~= nil ) then
 
           -- Release this touch ID
