@@ -20,7 +20,7 @@ system.activate( "multitouch" )
 --locals
 physics.start()
 physics.setContinuous( enabled )
-physics.setDrawMode("normal")
+physics.setDrawMode("hybrid")
 local delay = 10
 local score = -1
 local life = 1;
@@ -31,6 +31,7 @@ local lastEnemy = 0         --spawn enemy
 local pentChance = 0.0035  --spawn enemy
 local enemies = {}         --spawn enemy
 local GObool = false
+local powerButton
 
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
@@ -207,6 +208,7 @@ local function mainEnemy()
 
     pup.isSensor = true
     physics.addBody( pup, "dynamic" )
+
 
 		lastEnemy = system.getTimer()
 		table.insert(enemies, pup)
@@ -447,7 +449,7 @@ function scene:create( event )
 	 end
 
 			--creation of powerButton
-			local powerButton = display.newImage("powerButtonRing.png")
+			powerButton = display.newImage("powerButtonRing.png")
 			   powerButton.xScale = 1
 			   powerButton.yScale = 1
 			   powerButton.x = 480
@@ -456,7 +458,8 @@ function scene:create( event )
 				 powerButton:toBack()
 				 powerButton.alpha = 0.7
 				 sceneGroup:insert(powerButton);
-				 powerButton:addEventListener( "touch", changeColor )
+				 --powerButton:addEventListener( "touch", changeColor )
+
 
   --initialize score value
   	scoreLabel.text = "Score: " .. score
@@ -511,6 +514,8 @@ function gameOver ()
 		timer.performWithDelay(400000, composer.gotoScene("menu", options), 1)
 
  end
+
+ 
 
 ---------------------------------------------------------------------------------------------------
 -- Updating whatever, may not need
@@ -585,6 +590,15 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
+local function addHB( event )
+	print(hitBoxS.name)
+	hitBoxS.name = "ship"
+	print(hitBoxS.name)
+end
+local function removeHB( event )
+	hitBoxS.name = "invinc"
+	timer.performWithDelay( 5000, addHB,1)
+end
 
 --Runtime:addEventListener("enterFrame", enterFrame)
 local function onGlobalCollision( event )
@@ -594,6 +608,8 @@ local function onGlobalCollision( event )
     		  gameOver()
     	  elseif event.object2.name == "pup" then
     		--todo: add poweerup functionality
+    		powerButton.alpha = 1
+    		powerButton:addEventListener( "touch", removeHB )
     	  end
       end
     end
