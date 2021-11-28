@@ -20,7 +20,7 @@ system.activate( "multitouch" )
 --locals
 physics.start()
 physics.setContinuous( enabled )
-physics.setDrawMode("normal")
+physics.setDrawMode("hybrid")
 local delay = 10
 local score = -1
 local life = 1;
@@ -128,7 +128,7 @@ ship:setSequence("idle");
 physics.addBody( ship, "kinematic" )
 --play animation based on selected frames
 ship:play();
-hitBoxS= display.newCircle( ship.x-10, ship.y-10, 10 )
+hitBoxS= display.newCircle( display.contentCenterX+15, display.viewableContentHeight-50, 12 )
 hitBoxS.alpha = 0
 hitBoxS.name = "ship"
 hitBoxS.isSensor = true
@@ -161,115 +161,150 @@ local function mainEnemy()
           { x = 654, y = 0, width = 31, height = 58},
           { x = 709, y = 0, width = 35, height = 58},
           { x = 767, y = 1, width = 37, height = 57},
-          { x = 825, y = 0, width = 37, height = 58},
-          { x = 881, y = 0, width = 39, height = 58},
-          { x = 940, y = 0, width = 37, height = 58},
-          { x = 997, y = 0, width = 39, height = 58},
-          { x = 1056, y = 0, width = 38, height = 58}
-        --  { x = 1116, y = 1, width = 35, height = 57}
-          --{ x = 1173, y = 1, width = 36, height = 57},
-          --{ x = 1231, y = 0, width = 35, height = 58}
+            { x = 825, y = 0, width = 37, height = 58},
+            { x = 881, y = 0, width = 39, height = 58},
+            { x = 940, y = 0, width = 37, height = 58},
+            { x = 997, y = 0, width = 39, height = 58},
+            { x = 1056, y = 0, width = 38, height = 58}
+          --  { x = 1116, y = 1, width = 35, height = 57}
+            --{ x = 1173, y = 1, width = 36, height = 57},
+            --{ x = 1231, y = 0, width = 35, height = 58}
+        }
       }
-    }
 
-    local mSheet = graphics.newImageSheet("enemyDrone00.png", mFrames)
-    local mSequences = {
-    	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 1000}
-    }
-
-		local mEnemy = display.newSprite(mSheet, mSequences )
-		mEnemy.x = math.random( 0, 800 )
-		mEnemy.y = 0
-    mEnemy:scale( 0.55, 0.55 )
-    mEnemy:toFront()
-    mEnemy:setSequence("idle");
-    mEnemy:play()
-
-    mEnemy.onDeath = scoreUp
-		lastEnemy = system.getTimer()
-		table.insert(enemies, mEnemy)
-
-		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 15 )
-		hitBoxM.alpha = 0
-		physics.addBody(hitBoxM, "dynamic")
-		hitBoxM.name = "enemy"
-		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
-		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
-
-	elseif (chance < 2) then
-    --powerup
-    -- set sprite animation and initial state
-    local pup = display.newImage("powerUp.png")
-       pup.xScale = 0.55
-       pup.yScale = 0.55
-       pup.x = math.random( 0, 800 )
-       pup.y = 0
-       pup.alpha = 0.7
-
-    pup.isSensor = true
-    physics.addBody( pup, "dynamic" )
-
-
-		lastEnemy = system.getTimer()
-		table.insert(enemies, pup)
-
-		local hitBoxP= display.newCircle( pup.x, pup.y, 15 )
-		hitBoxP.alpha = 0
-		physics.addBody(hitBoxP, "dynamic")
-		hitBoxP.name = "pup"
-		transition.to( hitBoxP, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
-		transition.to( pup, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
-  else
-    local sFrames =
-    {
-    frames = {
-          { x = 14, y = 0, width = 35, height = 64},
-          { x = 78, y = 0, width = 37, height = 64},
-          { x = 145, y = 0, width = 32, height = 64},
-          { x = 210, y = 0, width = 30, height = 64},
-          { x = 273, y = 0, width = 31, height = 64},
-          { x = 336, y = 0, width = 30, height = 64},
-          { x = 401, y = 0, width = 29, height = 64},
-          { x = 465, y = 0, width = 32, height = 64},
-          { x = 531, y = 0, width = 29, height = 64},
-          { x = 597, y = 0, width = 27, height = 64},
-          { x = 661, y = 0, width = 25, height = 64},
-          { x = 726, y = 0, width = 27, height = 64},
-          { x = 792, y = 0, width = 24, height = 64},
-          { x = 854, y = 0, width = 27, height = 64},
-          { x = 919, y = 0, width = 26, height = 64},
-          { x = 983, y = 0, width = 26, height = 64},
-          { x = 1047, y = 0, width = 26, height = 64},
-          { x = 1110, y = 0, width = 29, height = 64},
-          { x = 1174, y = 0, width = 29, height = 64}
+      local mSheet = graphics.newImageSheet("enemyDrone00.png", mFrames)
+      local mSequences = {
+      	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 1000}
       }
-    }
 
-    local sSheet = graphics.newImageSheet("enemyTall00.png",sFrames)
-    local sSequences = {
-    	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 900}
-    }
+  		local mEnemy = display.newSprite(mSheet, mSequences )
+  		mEnemy.x = math.random( 0, 800 )
+  		mEnemy.y = 0
+      mEnemy:scale( 0.55, 0.55 )
+      mEnemy:toFront()
+      mEnemy:setSequence("idle");
+      mEnemy:play()
 
-		local sEnemy = display.newSprite(sSheet, sSequences )
-		sEnemy.x = math.random( display.contentWidth )
-		sEnemy.y = 0
-    sEnemy:scale( 0.80, 0.65 )
-    sEnemy:toFront()
-    sEnemy:setSequence("idle");
-    sEnemy:play()
+      mEnemy.onDeath = scoreUp
+  		lastEnemy = system.getTimer()
+  		table.insert(enemies, mEnemy)
 
-    sEnemy.onDeath = scoreUp
-		lastEnemy = system.getTimer()
-		table.insert(enemies, sEnemy)
+  		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 15 )
+  		hitBoxM.alpha = 0
+  		physics.addBody(hitBoxM, "dynamic")
+  		hitBoxM.name = "enemy"
+  		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
+  		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
 
-		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 15 )
-		hitBoxSE.alpha = 0
-		physics.addBody(hitBoxSE, "dynamic")
-		hitBoxSE.name = "enemy"
-		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
-		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
+  	elseif (chance < 2) then
+      --powerup
+      -- set sprite animation and initial state
+      local pup = display.newImage("powerUp.png")
+         pup.xScale = 0.55
+         pup.yScale = 0.55
+         pup.x = math.random( 0, 800 )
+         pup.y = 0
+         pup.alpha = 0.7
 
-	  end
+      pup.isSensor = true
+      --physics.addBody( pup, "dynamic" )
+
+  		lastEnemy = system.getTimer()
+  		table.insert(enemies, pup)
+
+  		local hitBoxP= display.newCircle( pup.x, pup.y, 15 )
+  		hitBoxP.alpha = 0
+  		physics.addBody(hitBoxP, "dynamic")
+  		hitBoxP.name = "pup"
+  		transition.to( hitBoxP, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
+  		transition.to( pup, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
+
+    else
+      local sFrames =
+      {
+      frames = {
+            { x = 14, y = 0, width = 35, height = 64},
+            { x = 78, y = 0, width = 37, height = 64},
+            { x = 145, y = 0, width = 32, height = 64},
+            { x = 210, y = 0, width = 30, height = 64},
+            { x = 273, y = 0, width = 31, height = 64},
+            { x = 336, y = 0, width = 30, height = 64},
+            { x = 401, y = 0, width = 29, height = 64},
+            { x = 465, y = 0, width = 32, height = 64},
+            { x = 531, y = 0, width = 29, height = 64},
+            { x = 597, y = 0, width = 27, height = 64},
+            { x = 661, y = 0, width = 25, height = 64},
+            { x = 726, y = 0, width = 27, height = 64},
+            { x = 792, y = 0, width = 24, height = 64},
+            { x = 854, y = 0, width = 27, height = 64},
+            { x = 919, y = 0, width = 26, height = 64},
+            { x = 983, y = 0, width = 26, height = 64},
+            { x = 1047, y = 0, width = 26, height = 64},
+            { x = 1110, y = 0, width = 29, height = 64},
+            { x = 1174, y = 0, width = 29, height = 64}
+        }
+      }
+
+      local sSheet = graphics.newImageSheet("enemyTall00.png",sFrames)
+      local sSequences = {
+      	{name = "idle", frames={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19}, time = 900}
+      }
+
+  		local sEnemy = display.newSprite(sSheet, sSequences )
+  		sEnemy.x = math.random( display.contentWidth )
+  		sEnemy.y = 0
+      sEnemy:scale( 0.80, 0.65 )
+      sEnemy:toFront()
+      sEnemy:setSequence("idle");
+      sEnemy:play()
+
+      sEnemy.onDeath = scoreUp
+  		lastEnemy = system.getTimer()
+  		table.insert(enemies, sEnemy)
+
+  		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 15 )
+  		hitBoxSE.alpha = 0
+  		physics.addBody(hitBoxSE, "dynamic")
+  		hitBoxSE.name = "enemy"
+  		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
+  		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
+
+  	  end
+
+      if(score > 1000 and math.random(1000) > 800) then
+
+        local bossFrames =
+      {
+      frames = {
+            { x = 22, y = 39, width = 207, height = 185},
+            { x = 22, y = 39, width = 207, height = 185}
+        }
+      }
+
+      local bossSheet = graphics.newImageSheet("boss.png",bossFrames)
+      local bossSequences = {
+        {name = "idle", frames={1,2}, time = 1}
+      }
+
+      local bossEnemy = display.newSprite(bossSheet, bossSequences )
+      bossEnemy.x = math.random( display.contentWidth )
+      bossEnemy.y = 20
+      bossEnemy:scale( 0.35, 0.4 )
+      bossEnemy:toFront()
+      bossEnemy:setSequence("idle");
+      bossEnemy:play()
+
+      bossEnemy.onDeath = scoreUp
+      lastEnemy = system.getTimer()
+      table.insert(enemies, bossEnemy)
+
+      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
+      hitBoxBoss.alpha = 0
+      physics.addBody(hitBoxBoss, "dynamic")
+      hitBoxBoss.name = "enemy"
+      transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
+      transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
+      end
 
 end
 
@@ -291,7 +326,21 @@ local function enterFrame()
 
     --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
     if GObool == false then
-    if math.random() < rp or t - lastEnemy > 500 then mainEnemy() end
+
+    if(score < 500) then
+      if math.random() < rp or t - lastEnemy > 1000 then 
+        mainEnemy() 
+      end
+    elseif (score > 500 and score < 1000) then
+      if math.random() < rp or t - lastEnemy > 750 then 
+        mainEnemy() 
+      end
+    elseif (score > 1000 and score < 1500) then
+      if math.random() < rp or t - lastEnemy > 500 then 
+        mainEnemy() 
+      end
+    end
+
 	end
 end
 
