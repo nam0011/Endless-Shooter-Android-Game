@@ -125,7 +125,8 @@ ship.xScale = 0.15;
 ship.yScale = 0.15;
 ship.isSensor = true
 ship:setSequence("idle");
-physics.addBody( ship, "kinematic" )
+local offsetShipSize = {halfWidth = 10, halfHeight = 10}
+physics.addBody( ship, "kinematic", {box = offsetShipSize} )
 --play animation based on selected frames
 ship:play();
 hitBoxS= display.newCircle( display.contentCenterX+15, display.viewableContentHeight-50, 12 )
@@ -381,7 +382,7 @@ if (loadedSettings == nil ) then
 	    musicOn = true,
 	    soundOn = true,
 	    difficulty = "easy",
-	    highScore = 10000,
+	    highScore = 100,
 	    highestLevel = 7
 	}
 end
