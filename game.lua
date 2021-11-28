@@ -178,7 +178,7 @@ local function mainEnemy()
       }
 
   		local mEnemy = display.newSprite(mSheet, mSequences )
-  		mEnemy.x = math.random( 0, 800 )
+  		mEnemy.x = math.random( display.contentWidth )
   		mEnemy.y = 0
       mEnemy:scale( 0.55, 0.55 )
       mEnemy:toFront()
@@ -202,7 +202,7 @@ local function mainEnemy()
       local pup = display.newImage("powerUp.png")
          pup.xScale = 0.55
          pup.yScale = 0.55
-         pup.x = math.random( 0, 800 )
+         pup.x = math.random( display.contentWidth )
          pup.y = 0
          pup.alpha = 0.7
 
@@ -462,13 +462,35 @@ function scene:create( event )
                   if ( buttonGroup.activeButton.ID == "left" ) then
                       ship:setLinearVelocity( -100, 0 )
                       hitBoxS:setLinearVelocity( -100, 0 )
+                      if((ship.x - ship.width * 0.001) < 0) then
+                        ship.x = ship.width * 0.001
+                      elseif((ship.x + ship.width * 0.001) > display.contentWidth) then
+                        ship.x = display.contentWidth - ship.width * 0.001
+                      end
+                      if((hitBoxS.x - hitBoxS.width * 0.001) < 0) then
+                        hitBoxS.x = hitBoxS.width * 0.001
+                      elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
+                        hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
+                      end
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
                       ship:setLinearVelocity( 100, 0 )
                       hitBoxS:setLinearVelocity( 100, 0 )
+                      if((ship.x - ship.width * 0.001) < 0) then
+                        ship.x = ship.width * 0.001
+                      elseif((ship.x + ship.width * 0.001) > display.contentWidth) then
+                        ship.x = display.contentWidth - ship.width * 0.001
+                      end
+                      if((hitBoxS.x - hitBoxS.width * 0.001) < 0) then
+                        hitBoxS.x = hitBoxS.width * 0.001
+                      elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
+                        hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
+                      end
                   end
               end
               return true
           end
+
+        
 
       elseif ( event.phase == "moved" ) then
 
@@ -487,7 +509,7 @@ function scene:create( event )
   end
   rightButton:addEventListener( "touch", handleController )
   leftButton:addEventListener( "touch", handleController )
-
+        
 	 local changeColor = function(event)
 	 	local t = event.target
 	 	local phase = event.phase
@@ -556,11 +578,11 @@ function gameOver ()
 	 local options = {
 		 effect = "fade",
      --time = 500
-	    time = 2000
+	    time = 1000
 	 }
 
 		--call menu on game over
-		timer.performWithDelay(400000, composer.gotoScene("menu", options), 1)
+		timer.performWithDelay(1000, composer.gotoScene("menu", options), 1)
 
  end
 
