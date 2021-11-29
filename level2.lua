@@ -22,6 +22,7 @@ physics.start()
 physics.setContinuous( enabled )
 physics.setDrawMode("normal")
 local delay = 10
+--local score = -1
 local life = 1;
 local runtime = 0
 local scrollSpeed = 1.4
@@ -30,16 +31,9 @@ local lastEnemy = 0         --spawn enemy
 local enemyChance = 0.0035  --spawn enemy
 local enemies = {}         --spawn enemy
 local powerButton
---global
-score = -1
+
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
---set background image
-local background = display.newImageRect( "background.png",
-               (display.viewableContentWidth*1.2), display.viewableContentHeight)
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-background:toBack()
 
 --left and right boundary
 local left= display.newRect( -47,display.viewableContentHeight-50, 10, 10 )
@@ -78,19 +72,21 @@ right:addEventListener( "preCollision" )
 
 --level 1 scrollable background
 local function addScrollableBg()
-    local bgImage = { type="image", filename="background.png" }
+    local bgImage = { type="image", filename="clouds1.png" }
 
     -- Add First bg image
     bg1 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
     bg1.fill = bgImage
     bg1.x = display.contentCenterX
     bg1.y = display.contentCenterY
+    bg1.alpha=0.3
 
     -- Add Second bg image
     bg2 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
     bg2.fill = bgImage
     bg2.x = display.contentCenterX
     bg2.y = display.contentCenterY - display.actualContentHeight
+    bg2.alpha=0.5
 end
 
 --move background
@@ -113,52 +109,6 @@ local function getDeltaTime()
     return dt
 end
 
----------------------------------------------------------------------------------------------------
--- PLayer Sprite Initialization
---define sprite frames
-local playerFrames =
-{
-frames = {
-		{ x = 19, y = 17, width = 208, height = 196}, --idle 1
-
-		{ x = 278, y = 22, width = 202, height = 184}, --right turn begin 2
-		{ x = 537, y = 27, width = 197, height = 179}, --right turn end 3
-
-		{ x = 1308, y = 22, width = 197, height = 184}, --left turn begin 4
-		{ x = 1058, y = 21, width = 188, height = 186} --left turn end 5
-  }
-}
-
--- include sprite image sheet
-local playerSheet = graphics.newImageSheet( "ship.png", playerFrames);
-
---set the frames for the animation of each of the 6 poses
-local playerSequences = {
-	{name = "idle", frames={1}, time = 500},
-	{name = "right", frames={2,3}, time = 500},
-	{name = "left", frames={4,5}, time = 500}
-}
-
--- set sprite animation and initial state
-ship = display.newSprite (playerSheet, playerSequences);
-ship.anchorX = display.contentCenterX;
-ship.anchorY = display.viewableContentHeight-60;
-ship.x = display.contentCenterX+25
-ship.y = display.viewableContentHeight-35;
-ship.xScale = 0.15;
-ship.yScale = 0.15;
-ship.isSensor = true
-ship:setSequence("idle");
-local offsetShipSize = {halfWidth = 10, halfHeight = 10}
-physics.addBody( ship, "dynamic", {box = offsetShipSize, bounce = 0} )
---play animation based on selected frames
-ship:play();
-hitBoxS= display.newCircle( display.contentCenterX+25, display.viewableContentHeight-50, 12 )
-hitBoxS.alpha = 0
-hitBoxS.name = "ship"
-hitBoxS.isSensor = true
-physics.setGravity( 0, 0 )
-physics.addBody(hitBoxS, "kinematic")
 
 ---------------------------------------------------------------------------------------------------
 --spawn enemies
@@ -292,6 +242,44 @@ local function mainEnemy()
   		table.insert(enemies, hitBoxSE)
     end
 
+
+    if (chance < 2) then
+    --add boss enemy
+      local bossFrames =
+      {
+      frames = {
+            { x = 7, y = 26, width = 191, height = 166},
+            { x = 222, y = 26, width = 187, height = 163},
+            { x = 437, y = 27, width = 178, height = 162}
+        }
+      }
+
+      local bossSheet = graphics.newImageSheet("bosslow.png",bossFrames)
+      local bossSequences = {
+        {name = "idle", frames={1,2,3}, time = 300}
+      }
+
+      local bossEnemy = display.newSprite(bossSheet, bossSequences )
+      bossEnemy.x = math.random( display.contentWidth )
+      bossEnemy.y = 20
+      bossEnemy:scale( 0.15, 0.2 )
+      bossEnemy:toFront()
+      bossEnemy:setSequence("idle");
+      bossEnemy:play()
+
+      bossEnemy.onDeath = scoreUp
+      lastEnemy = system.getTimer()
+      table.insert(enemies, bossEnemy)
+
+      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 10 )
+      hitBoxBoss.alpha = 0
+      physics.addBody(hitBoxBoss, "dynamic")
+      hitBoxBoss.name = "enemy"
+      transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=2900, onComplete = removeEnemy})
+      transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=2900, onComplete = removeEnemy})
+      table.insert(enemies, hitBoxBoss)
+    end
+
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -305,46 +293,9 @@ local function enterFrame()
     moveBg(dt)
 
     local rp = enemyChance * dt
-    if (score < 500) then
-      if math.random() < rp or t - lastEnemy > 1000 then mainEnemy() end
-    else
-      if math.random() < rp or t - lastEnemy > 700 then mainEnemy() end
-    end
-    if score > 1000 then
-      levelUp()
-    end
+    if math.random() < rp or t - lastEnemy > 500 then mainEnemy() end
 
 end
-
----------------------------------------------------------------------------------------------------
--- Scoring Text
---initialize text for current score
-local header =
-{
-    text = "Score:",
-    x = display.viewableContentWidth/10,
-    y = display.viewableContentHeight/10,
-    width = 150,
-    font = native.systemFont,
-    fontSize = 16,
-    align = "left"  -- Alignment parameter
-}
---global
-scoreLabel = display.newText( header )
-
---initialize text for high score
-header =
-{
-    text = "High Score:",
-    x = display.viewableContentWidth-60,
-    y = display.viewableContentHeight/10,
-    width = 150,
-    font = native.systemFont,
-    fontSize = 16,
-    align = "right"  -- Alignment parameter
-}
---global
-highLabel = display.newText(header)
 
 ---------------------------------------------------------------------------------------------------
 --JSON
@@ -433,12 +384,10 @@ function scene:create( event )
                   if ( buttonGroup.activeButton.ID == "left" ) then
                       ship:setLinearVelocity( -100, 0 )
                       hitBoxS:setLinearVelocity( -100, 0 )
-
                       ship:setSequence("left");
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
                       ship:setLinearVelocity( 100, 0 )
                       hitBoxS:setLinearVelocity( 100, 0 )
-
                       ship:setSequence("right");
                   end
               end
@@ -465,14 +414,15 @@ function scene:create( event )
   rightButton:addEventListener( "touch", handleController )
   leftButton:addEventListener( "touch", handleController )
 
-	--creation of powerButton
+  --creation of powerButton
 	powerButton = display.newImage("powerButtonRing.png")
 	   powerButton.xScale = 1
 	   powerButton.yScale = 1
 	   powerButton.x = 480
 	   powerButton.y = 217
 		 powerButton:toBack()
-		 powerButton.alpha = 0.5
+     --give power credit for levelup
+		 powerButton.alpha = 1
 		 sceneGroup:insert(powerButton);
      --set ship hit box to destructable
      local function addHB( event )
@@ -494,7 +444,6 @@ function scene:create( event )
   --initialize score value
 	scoreLabel.text = "Score: " .. score
 	highLabel.text = "High Score: " .. loadedSettings.highScore
-
 
 end  --end create scene
 
@@ -535,55 +484,13 @@ function gameOver ()
 
  end
 
+
+
  ---------------------------------------------------------------------------------------------------
- -- Level Up
- function levelUp ()
-     --stop ship if mid-flight
-     ship:setLinearVelocity( 0, 0 )
-     hitBoxS:setLinearVelocity( 0, 0 )
-     ship:setSequence("idle");
-
-     --game over label
-     local levelup =
-     {
-        text = "Level Up",
-        x = display.contentCenterX+10,
-        y = display.contentCenterY+80,
-        width = 250,
-        font = native.systemFont,
-        fontSize = 35,
-        align = "center"  -- Alignment parameter
-     }
-     levelupGroup = display.newGroup()
-     levelupGroup.text = display.newText(levelup)
-
-     for i, v in ipairs(enemies) do
-       if v.removeSelf then
-         v:removeSelf()
-       end
-     end
-     enemies = {}
-
-   --set effects for scene transition
-    local options = {
-      effect = "fade",
-      --time = 500
-       time = 1000
-    }
-    --ship.x = display.contentCenterX+25
-    --hitBoxS.x = display.contentCenterX+15
-
-     --call level 2
-     timer.performWithDelay(1000, composer.gotoScene("level2", options), 1)
-
-  end
-
----------------------------------------------------------------------------------------------------
--- Updating whatever, may not need
---update if needed
-function update()
-
-end
+ --levelFade - increases score as play
+ local function levelFade ()
+     levelupGroup.text.isVisible = false
+ end
 
 ---------------------------------------------------------------------------------------------------
 -- Events
@@ -597,14 +504,19 @@ function scene:show( event )
 
    if ( phase == "will" ) then
 		 physics.start()
-     -- Play the background music on channel 1, loop infinitely, and fade in
-     bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
-		 score = 0
-		 --reset first pass every game
-		 bIsFirstPass = true
+
+		--reset first pass every game
+		bIsFirstPass = true
    elseif ( phase == "did" ) then
      Runtime:addEventListener("enterFrame", enterFrame)
 		 timer1 = timer.performWithDelay(delay,scoreUp,0)
+     if (levelupGroup.text.isVisible) then
+       timer.performWithDelay(2000,levelFade,1)
+     end
+     --add temp invincible
+     --hitBoxS.name = "invinc"
+     --hitBoxS.alpha = 0.5
+     --timer.performWithDelay( 5000, addHB,1)
    end
 end
 
@@ -627,7 +539,6 @@ function scene:hide( event )
        end
      end
      enemies = {}
-     composer.removeScene( self.view )
    end
 end
 
@@ -643,7 +554,21 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 
+--set ship hit box to destructable
+local function addHB( event )
+	hitBoxS.name = "ship"
+  hitBoxS.alpha = 0
+end
 
+--set ship to invincible
+local function powerUp( event )
+  if (powerButton.alpha == 1) then
+  	hitBoxS.name = "invinc"
+    hitBoxS.alpha = 0.5
+  	timer.performWithDelay( 5000, addHB,1)
+    powerButton.alpha = 0.5
+  end
+end
 
 --
 local function onGlobalCollision( event )
