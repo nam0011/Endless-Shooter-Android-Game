@@ -604,6 +604,7 @@ function scene:show( event )
      addScrollableBg()
      buttonGroup:toFront()
      powerButton:toFront()
+     powerButton.alpha = 0.5
      -- Play the background music on channel 1, loop infinitely, and fade in
      bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
 		 score = 0
