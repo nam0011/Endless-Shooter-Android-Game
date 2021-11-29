@@ -332,7 +332,7 @@ if (loadedSettings == nil ) then
 	    musicOn = true,
 	    soundOn = true,
 	    difficulty = "easy",
-	    highScore = 10000,
+	    highScore = 0,
 	    highestLevel = 7
 	}
 end
