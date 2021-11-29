@@ -262,7 +262,7 @@ local function mainEnemy()
       local bossEnemy = display.newSprite(bossSheet, bossSequences )
       bossEnemy.x = math.random( display.contentWidth )
       bossEnemy.y = 20
-      bossEnemy:scale( 0.15, 0.2 )
+      bossEnemy:scale( 0.20, 0.25 )
       bossEnemy:toFront()
       bossEnemy:setSequence("idle");
       bossEnemy:play()
@@ -271,7 +271,7 @@ local function mainEnemy()
       lastEnemy = system.getTimer()
       table.insert(enemies, bossEnemy)
 
-      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 10 )
+      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 12 )
       hitBoxBoss.alpha = 0
       physics.addBody(hitBoxBoss, "dynamic")
       hitBoxBoss.name = "enemy"
