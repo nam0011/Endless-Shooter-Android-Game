@@ -27,6 +27,8 @@ local function play (event)
    }
    score = 0
    ship.x = display.contentCenterX+25
+   hitBoxS.x = display.contentCenterX+15
+   enemies = nil
    composer.gotoScene("game", ops)
 end
 
