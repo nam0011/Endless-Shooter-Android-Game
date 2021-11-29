@@ -46,9 +46,11 @@ background:toBack()
 local left = display.newRect(-40, 0, 1, display.contentHeight)
 left.anchorX = 0; left.anchorY = 0
 left.isVisible = false
+left.name = "wall"
 local right = display.newRect(display.viewableContentWidth+40, 0, 1, display.contentHeight)
 right.anchorX = 0; right.anchorY = 0
 right.isVisible = false
+right.name = "wall"
 physics.addBody(left, "static", { isSensor=true } )
 physics.addBody(right, "static", { isSensor=true } )
 
@@ -278,20 +280,21 @@ local function mainEnemy()
         local bossFrames =
         {
         frames = {
-              { x = 22, y = 39, width = 207, height = 185},
-              { x = 22, y = 39, width = 207, height = 185}
+              { x = 7, y = 26, width = 191, height = 166},
+              { x = 222, y = 26, width = 187, height = 163},
+              { x = 437, y = 27, width = 178, height = 162}
           }
         }
 
-        local bossSheet = graphics.newImageSheet("boss.png",bossFrames)
+        local bossSheet = graphics.newImageSheet("bosslow.png",bossFrames)
         local bossSequences = {
-          {name = "idle", frames={1,2}, time = 1}
+          {name = "idle", frames={1,2,3}, time = 300}
         }
 
         local bossEnemy = display.newSprite(bossSheet, bossSequences )
         bossEnemy.x = math.random( display.contentWidth )
         bossEnemy.y = 20
-        bossEnemy:scale( 0.35, 0.4 )
+        bossEnemy:scale( 0.15, 0.2 )
         bossEnemy:toFront()
         bossEnemy:setSequence("idle");
         bossEnemy:play()
@@ -536,15 +539,6 @@ function scene:create( event )
 
   --initialize score value
   	scoreLabel.text = "Score: " .. score
-
---update high score with value
-  --use for loop in case of multiple records
-	--[[for k,v in pairs(loadedSettings) do
-	    --print( k,v )
-			if (k == "highScore") then
-      	highLabel.text = "High Score: " .. v
-			end
-	end--]]
 		highLabel.text = "High Score: " .. loadedSettings.highScore
 
 
@@ -620,7 +614,6 @@ function scene:show( event )
    	--start timer when scene is shown
    	--timer1 = timer.performWithDelay(delay,rain,0)
 
-    --note: use for spawning pentagons and circle
     local spawnEnemy = Runtime:addEventListener("enterFrame", enterFrame)
 		timer1 = timer.performWithDelay(delay,scoreUp,0)
    end
@@ -644,11 +637,12 @@ function scene:hide( event )
         v:removeSelf()
       end
     end
-
     enemies = {}
+    transition.cancelAll()
+    print("hide will")
    elseif ( phase == "did" ) then
      --physics.stop()
-     transition.cancelAll()
+     --transition.cancelAll()
    end
 end
 
