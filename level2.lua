@@ -504,7 +504,9 @@ function scene:show( event )
 
    if ( phase == "will" ) then
 		 physics.start()
-
+     addScrollableBg()
+     buttonGroup:toFront()
+     powerButton:toFront()
 		--reset first pass every game
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
