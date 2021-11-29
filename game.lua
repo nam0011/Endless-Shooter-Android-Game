@@ -20,7 +20,7 @@ system.activate( "multitouch" )
 --locals
 physics.start()
 physics.setContinuous( enabled )
-physics.setDrawMode("hybrid")
+physics.setDrawMode("normal")
 local delay = 10
 local score = -1
 local life = 1;
@@ -329,16 +329,16 @@ local function enterFrame()
     if GObool == false then
 
     if(score < 500) then
-      if math.random() < rp or t - lastEnemy > 1000 then 
-        mainEnemy() 
+      if math.random() < rp or t - lastEnemy > 1000 then
+        mainEnemy()
       end
     elseif (score > 500 and score < 1000) then
-      if math.random() < rp or t - lastEnemy > 750 then 
-        mainEnemy() 
+      if math.random() < rp or t - lastEnemy > 750 then
+        mainEnemy()
       end
     elseif (score > 1000 and score < 1500) then
-      if math.random() < rp or t - lastEnemy > 500 then 
-        mainEnemy() 
+      if math.random() < rp or t - lastEnemy > 500 then
+        mainEnemy()
       end
     end
 
@@ -382,7 +382,7 @@ if (loadedSettings == nil ) then
 	    musicOn = true,
 	    soundOn = true,
 	    difficulty = "easy",
-	    highScore = 100,
+	    highScore = 0,
 	    highestLevel = 7
 	}
 end
@@ -491,7 +491,7 @@ function scene:create( event )
               return true
           end
 
-        
+
 
       elseif ( event.phase == "moved" ) then
 
@@ -510,7 +510,7 @@ function scene:create( event )
   end
   rightButton:addEventListener( "touch", handleController )
   leftButton:addEventListener( "touch", handleController )
-        
+
 	 local changeColor = function(event)
 	 	local t = event.target
 	 	local phase = event.phase
