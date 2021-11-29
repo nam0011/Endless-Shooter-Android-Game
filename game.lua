@@ -487,9 +487,10 @@ function scene:create( event )
      --set ship to invincible
      local function powerUp( event )
        if (powerButton.alpha == 1) then
-       	hitBoxS.name = "invinc"
+         audio.play(sfx.usepower, { channel=3 } );
+       	 hitBoxS.name = "invinc"
          hitBoxS.alpha = 0.5
-       	timer.performWithDelay( 5000, addHB,1)
+        	timer.performWithDelay( 5000, addHB,1)
          powerButton.alpha = 0.5
        end
      end
@@ -542,6 +543,8 @@ function gameOver ()
  ---------------------------------------------------------------------------------------------------
  -- Level Up
  function levelUp ()
+     audio.play(sfx.levelup, { channel=2 } );
+     audio.setMaxVolume( 0.65, { channel=2 } )
      --stop ship if mid-flight
      ship:setLinearVelocity( 0, 0 )
      hitBoxS:setLinearVelocity( 0, 0 )
@@ -607,6 +610,7 @@ function scene:show( event )
      powerButton.alpha = 0.5
      -- Play the background music on channel 1, loop infinitely, and fade in
      bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
+     audio.setMaxVolume( 0.85, { channel=1 } )
 		 score = 0
 		 --reset first pass every game
 		 bIsFirstPass = true
@@ -660,6 +664,10 @@ local function onGlobalCollision( event )
         if event.object2.name == "enemy" then
     		  gameOver()
     	  elseif event.object2.name == "pup" then
+          if (powerButton.alpha < 1) then
+            audio.play(sfx.collect, { channel=3 } );
+            audio.setMaxVolume( 0.65, { channel=3 } )
+          end
       		powerButton.alpha = 1
         end
 
