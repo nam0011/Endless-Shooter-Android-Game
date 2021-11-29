@@ -293,7 +293,7 @@ local function mainEnemy()
     end
 
     --add boss enemy
-    if(score > 1000 and math.random(1000) > 800) then
+    --[[if(score > 1000 and math.random(1000) > 800) then
 
       local bossFrames =
       {
@@ -328,7 +328,7 @@ local function mainEnemy()
       transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
       transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
       table.insert(enemies, hitBoxBoss)
-    end
+    end]]
 
 end
 
@@ -343,7 +343,8 @@ local function enterFrame()
     moveBg(dt)
 
     local rp = enemyChance * dt
-    if(score < 500) then
+    if math.random() < rp or t - lastEnemy > 1000 then mainEnemy() end
+    --[[if(score < 500) then
       if math.random() < rp or t - lastEnemy > 1000 then
         mainEnemy()
       end
@@ -355,7 +356,7 @@ local function enterFrame()
       if math.random() < rp or t - lastEnemy > 500 then
         mainEnemy()
       end
-    end
+    end]]
 
 end
 
@@ -531,7 +532,7 @@ function scene:create( event )
 	   powerButton.x = 480
 	   powerButton.y = 217
 		 powerButton:toBack()
-		 powerButton.alpha = 0.7
+		 powerButton.alpha = 0.5
 		 sceneGroup:insert(powerButton);
 
 
@@ -656,6 +657,7 @@ local function removeHB( event )
 	hitBoxS.name = "invinc"
   hitBoxS.alpha = 0.5
 	timer.performWithDelay( 5000, addHB,1)
+  powerButton.alpha = 0.5
 end
 
 --
