@@ -272,39 +272,40 @@ local function mainEnemy()
 
   	  end
 
+      --add boss enemy
       if(score > 1000 and math.random(1000) > 800) then
 
         local bossFrames =
-      {
-      frames = {
-            { x = 22, y = 39, width = 207, height = 185},
-            { x = 22, y = 39, width = 207, height = 185}
+        {
+        frames = {
+              { x = 22, y = 39, width = 207, height = 185},
+              { x = 22, y = 39, width = 207, height = 185}
+          }
         }
-      }
 
-      local bossSheet = graphics.newImageSheet("boss.png",bossFrames)
-      local bossSequences = {
-        {name = "idle", frames={1,2}, time = 1}
-      }
+        local bossSheet = graphics.newImageSheet("boss.png",bossFrames)
+        local bossSequences = {
+          {name = "idle", frames={1,2}, time = 1}
+        }
 
-      local bossEnemy = display.newSprite(bossSheet, bossSequences )
-      bossEnemy.x = math.random( display.contentWidth )
-      bossEnemy.y = 20
-      bossEnemy:scale( 0.35, 0.4 )
-      bossEnemy:toFront()
-      bossEnemy:setSequence("idle");
-      bossEnemy:play()
+        local bossEnemy = display.newSprite(bossSheet, bossSequences )
+        bossEnemy.x = math.random( display.contentWidth )
+        bossEnemy.y = 20
+        bossEnemy:scale( 0.35, 0.4 )
+        bossEnemy:toFront()
+        bossEnemy:setSequence("idle");
+        bossEnemy:play()
 
-      bossEnemy.onDeath = scoreUp
-      lastEnemy = system.getTimer()
-      table.insert(enemies, bossEnemy)
+        bossEnemy.onDeath = scoreUp
+        lastEnemy = system.getTimer()
+        table.insert(enemies, bossEnemy)
 
-      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
-      hitBoxBoss.alpha = 0
-      physics.addBody(hitBoxBoss, "dynamic")
-      hitBoxBoss.name = "enemy"
-      transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
-      transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
+        local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
+        hitBoxBoss.alpha = 0
+        physics.addBody(hitBoxBoss, "dynamic")
+        hitBoxBoss.name = "enemy"
+        transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
+        transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
       end
 
 end
