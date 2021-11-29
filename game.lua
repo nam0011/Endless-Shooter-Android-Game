@@ -130,7 +130,7 @@ local offsetShipSize = {halfWidth = 10, halfHeight = 10}
 physics.addBody( ship, "kinematic", {box = offsetShipSize} )
 --play animation based on selected frames
 ship:play();
-hitBoxS= display.newCircle( display.contentCenterX+15, display.viewableContentHeight-50, 12 )
+hitBoxS= display.newCircle( display.contentCenterX+25, display.viewableContentHeight-50, 12 )
 hitBoxS.alpha = 0
 hitBoxS.name = "ship"
 hitBoxS.isSensor = true
@@ -188,7 +188,7 @@ local function mainEnemy()
   		lastEnemy = system.getTimer()
   		table.insert(enemies, mEnemy)
 
-  		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 15 )
+  		local hitBoxM= display.newCircle( mEnemy.x, mEnemy.y, 10 )
   		hitBoxM.alpha = 0
   		physics.addBody(hitBoxM, "dynamic")
   		hitBoxM.name = "enemy"
@@ -260,7 +260,7 @@ local function mainEnemy()
   		lastEnemy = system.getTimer()
   		table.insert(enemies, sEnemy)
 
-  		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 15 )
+  		local hitBoxSE= display.newCircle( sEnemy.x, sEnemy.y, 10 )
   		hitBoxSE.alpha = 0
   		physics.addBody(hitBoxSE, "dynamic")
   		hitBoxSE.name = "enemy"
@@ -298,7 +298,7 @@ local function mainEnemy()
       lastEnemy = system.getTimer()
       table.insert(enemies, bossEnemy)
 
-      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
+      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 10 )
       hitBoxBoss.alpha = 0
       physics.addBody(hitBoxBoss, "dynamic")
       hitBoxBoss.name = "enemy"
