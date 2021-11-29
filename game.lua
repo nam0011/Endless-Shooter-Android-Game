@@ -87,14 +87,14 @@ local function addScrollableBg()
     bg1.fill = bgImage
     bg1.x = display.contentCenterX
     bg1.y = display.contentCenterY
-    bg1.alpha = 0.3
+    bg1.alpha = 0.7
 
     -- Add Second bg image
     bg2 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
     bg2.fill = bgImage
     bg2.x = display.contentCenterX
     bg2.y = display.contentCenterY - display.actualContentHeight
-    bg2.alpha = 0.3
+    bg2.alpha = 0.7
 end
 
 --move background

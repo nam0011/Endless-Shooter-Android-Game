@@ -21,7 +21,7 @@ system.activate( "multitouch" )
 physics.start()
 physics.setContinuous( enabled )
 physics.setDrawMode("normal")
-local delay = 10
+local delay = 7
 --local score = -1
 local life = 1;
 local runtime = 0
@@ -243,7 +243,7 @@ local function mainEnemy()
     end
 
 
-    if (chance < 2) then
+    if (chance < 3) then
     --add boss enemy
       local bossFrames =
       {
