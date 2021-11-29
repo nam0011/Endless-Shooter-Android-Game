@@ -28,9 +28,8 @@ local runtime = 0
 local scrollSpeed = 1.4
 local triChance = 0.0035   --spawn enemy
 local lastEnemy = 0         --spawn enemy
-local pentChance = 0.0035  --spawn enemy
+local enemyChance = 0.0035  --spawn enemy
 local enemies = {}         --spawn enemy
-local GObool = false
 local powerButton
 
 ---------------------------------------------------------------------------------------------------
@@ -97,18 +96,18 @@ end
 local playerFrames =
 {
 frames = {
-		{ x = 23, y = 30, width = 182, height = 171}, --idle 1
+		{ x = 19, y = 17, width = 208, height = 196}, --idle 1
 
-		{ x = 800, y = 30, width = 179, height = 169}, --right turn begin 2
-		{ x = 1060, y = 30, width = 165, height = 174}, --right turn end 3
+		{ x = 278, y = 22, width = 202, height = 184}, --right turn begin 2
+		{ x = 537, y = 27, width = 197, height = 179}, --right turn end 3
 
-		{ x = 14889, y = 30, width = 181, height = 171}, --left turn begin 4
-		{ x = 14387, y = 30, width = 172, height = 171} --left turn end 5
+		{ x = 1308, y = 22, width = 197, height = 184}, --left turn begin 4
+		{ x = 1058, y = 21, width = 188, height = 186} --left turn end 5
   }
 }
 
 -- include sprite image sheet
-local playerSheet = graphics.newImageSheet( "SF01a_strip60.png", playerFrames);
+local playerSheet = graphics.newImageSheet( "ship.png", playerFrames);
 
 --set the frames for the animation of each of the 6 poses
 local playerSequences = {
@@ -141,7 +140,7 @@ physics.addBody(hitBoxS, "kinematic")
 ---------------------------------------------------------------------------------------------------
 --spawn enemies
 local function removeEnemy(obj)
-	display.remove(obj)
+  display.remove(obj)
 end
 
 local function mainEnemy()
@@ -164,14 +163,11 @@ local function mainEnemy()
           { x = 654, y = 0, width = 31, height = 58},
           { x = 709, y = 0, width = 35, height = 58},
           { x = 767, y = 1, width = 37, height = 57},
-            { x = 825, y = 0, width = 37, height = 58},
-            { x = 881, y = 0, width = 39, height = 58},
-            { x = 940, y = 0, width = 37, height = 58},
-            { x = 997, y = 0, width = 39, height = 58},
-            { x = 1056, y = 0, width = 38, height = 58}
-          --  { x = 1116, y = 1, width = 35, height = 57}
-            --{ x = 1173, y = 1, width = 36, height = 57},
-            --{ x = 1231, y = 0, width = 35, height = 58}
+          { x = 825, y = 0, width = 37, height = 58},
+          { x = 881, y = 0, width = 39, height = 58},
+          { x = 940, y = 0, width = 37, height = 58},
+          { x = 997, y = 0, width = 39, height = 58},
+          { x = 1056, y = 0, width = 38, height = 58}
         }
       }
 
@@ -196,11 +192,11 @@ local function mainEnemy()
   		hitBoxM.alpha = 0
   		physics.addBody(hitBoxM, "dynamic")
   		hitBoxM.name = "enemy"
-  		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
-  		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2000, onComplete = removeEnemy})
-
+  		transition.to( hitBoxM, {x=mEnemy.x,y=display.viewableContentHeight,time=2500, onComplete = removeEnemy})
+  		transition.to( mEnemy, {x=mEnemy.x,y=display.viewableContentHeight,time=2500, onComplete = removeEnemy})
+  		table.insert(enemies, hitBoxM)
   	elseif (chance < 2) then
-      --powerup
+      --powerup collectible
       -- set sprite animation and initial state
       local pup = display.newImage("powerUp.png")
          pup.xScale = 0.55
@@ -210,7 +206,6 @@ local function mainEnemy()
          pup.alpha = 0.7
 
       pup.isSensor = true
-      --physics.addBody( pup, "dynamic" )
 
   		lastEnemy = system.getTimer()
   		table.insert(enemies, pup)
@@ -221,7 +216,7 @@ local function mainEnemy()
   		hitBoxP.name = "pup"
   		transition.to( hitBoxP, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
   		transition.to( pup, {x=pup.x,y=display.viewableContentHeight,time=3000, onComplete = removeEnemy})
-
+  		table.insert(enemies, hitBoxP)
     else
       local sFrames =
       {
@@ -271,45 +266,46 @@ local function mainEnemy()
   		hitBoxSE.name = "enemy"
   		transition.to( hitBoxSE, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
   		transition.to( sEnemy, {x=ship.x,y=ship.y+20,time=4000, onComplete = removeEnemy})
+  		table.insert(enemies, hitBoxSE)
+    end
 
-  	  end
+    --add boss enemy
+    if(score > 1000 and math.random(1000) > 800) then
 
-      --add boss enemy
-      if(score > 1000 and math.random(1000) > 800) then
-
-        local bossFrames =
-        {
-        frames = {
-              { x = 7, y = 26, width = 191, height = 166},
-              { x = 222, y = 26, width = 187, height = 163},
-              { x = 437, y = 27, width = 178, height = 162}
-          }
+      local bossFrames =
+      {
+      frames = {
+            { x = 7, y = 26, width = 191, height = 166},
+            { x = 222, y = 26, width = 187, height = 163},
+            { x = 437, y = 27, width = 178, height = 162}
         }
+      }
 
-        local bossSheet = graphics.newImageSheet("bosslow.png",bossFrames)
-        local bossSequences = {
-          {name = "idle", frames={1,2,3}, time = 300}
-        }
+      local bossSheet = graphics.newImageSheet("bosslow.png",bossFrames)
+      local bossSequences = {
+        {name = "idle", frames={1,2,3}, time = 300}
+      }
 
-        local bossEnemy = display.newSprite(bossSheet, bossSequences )
-        bossEnemy.x = math.random( display.contentWidth )
-        bossEnemy.y = 20
-        bossEnemy:scale( 0.15, 0.2 )
-        bossEnemy:toFront()
-        bossEnemy:setSequence("idle");
-        bossEnemy:play()
+      local bossEnemy = display.newSprite(bossSheet, bossSequences )
+      bossEnemy.x = math.random( display.contentWidth )
+      bossEnemy.y = 20
+      bossEnemy:scale( 0.15, 0.2 )
+      bossEnemy:toFront()
+      bossEnemy:setSequence("idle");
+      bossEnemy:play()
 
-        bossEnemy.onDeath = scoreUp
-        lastEnemy = system.getTimer()
-        table.insert(enemies, bossEnemy)
+      bossEnemy.onDeath = scoreUp
+      lastEnemy = system.getTimer()
+      table.insert(enemies, bossEnemy)
 
-        local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
-        hitBoxBoss.alpha = 0
-        physics.addBody(hitBoxBoss, "dynamic")
-        hitBoxBoss.name = "enemy"
-        transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
-        transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=3000, onComplete = removeEnemy})
-      end
+      local hitBoxBoss= display.newCircle( bossEnemy.x, bossEnemy.y, 35 )
+      hitBoxBoss.alpha = 0
+      physics.addBody(hitBoxBoss, "dynamic")
+      hitBoxBoss.name = "enemy"
+      transition.to( bossEnemy, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
+      transition.to( hitBoxBoss, {x=ship.x,y=ship.y+20,time=2000, onComplete = removeEnemy})
+      table.insert(enemies, hitBoxBoss)
+    end
 
 end
 
@@ -319,19 +315,11 @@ local function enterFrame()
     local dt = getDeltaTime()
     local t = system.getTimer()
 
-
-    --scene.hpText.text = "HP: " .. scene.player.hp
-
     if pause then return end
 
     moveBg(dt)
 
-    local rt = triChance * dt
-    local rp = pentChance * dt
-
-    --if math.random() < rt or t - lastTri > 2000 then spawnTriangle() end
-    if GObool == false then
-
+    local rp = enemyChance * dt
     if(score < 500) then
       if math.random() < rp or t - lastEnemy > 1000 then
         mainEnemy()
@@ -346,9 +334,7 @@ local function enterFrame()
       end
     end
 
-	end
 end
-
 
 ---------------------------------------------------------------------------------------------------
 -- Scoring Text
@@ -397,10 +383,8 @@ print( loadedSettings.highScore )
 --scoreUp - increases score as play
 local function scoreUp ()
     score = score + 1
-    --scene.scoreText.text = "Score: " .. score
 		--update fatalities with value
 		scoreLabel.text = "Score: " .. score
-    --audio.play(sfx.point)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -477,6 +461,7 @@ function scene:create( event )
                       elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
                         hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
                       end
+                      ship:setSequence("left");
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
                       ship:setLinearVelocity( 100, 0 )
                       hitBoxS:setLinearVelocity( 100, 0 )
@@ -490,6 +475,7 @@ function scene:create( event )
                       elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
                         hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
                       end
+                      ship:setSequence("right");
                   end
               end
               return true
@@ -515,39 +501,26 @@ function scene:create( event )
   rightButton:addEventListener( "touch", handleController )
   leftButton:addEventListener( "touch", handleController )
 
-	 local changeColor = function(event)
-	 	local t = event.target
-	 	local phase = event.phase
-
-	 	if "began" == phase then
-
-	 	end
-	 end
-
-			--creation of powerButton
-			powerButton = display.newImage("powerButtonRing.png")
-			   powerButton.xScale = 1
-			   powerButton.yScale = 1
-			   powerButton.x = 480
-			   powerButton.y = 217
-			   --powerButton:setFillColor(1,0,0,.5)
-				 powerButton:toBack()
-				 powerButton.alpha = 0.7
-				 sceneGroup:insert(powerButton);
-				 --powerButton:addEventListener( "touch", changeColor )
+	--creation of powerButton
+	powerButton = display.newImage("powerButtonRing.png")
+	   powerButton.xScale = 1
+	   powerButton.yScale = 1
+	   powerButton.x = 480
+	   powerButton.y = 217
+		 powerButton:toBack()
+		 powerButton.alpha = 0.7
+		 sceneGroup:insert(powerButton);
 
 
   --initialize score value
-  	scoreLabel.text = "Score: " .. score
-		highLabel.text = "High Score: " .. loadedSettings.highScore
-
+	scoreLabel.text = "Score: " .. score
+	highLabel.text = "High Score: " .. loadedSettings.highScore
 
 end  --end create scene
 
 ---------------------------------------------------------------------------------------------------
 -- Game Over
 function gameOver ()
-		GObool = true
     --stop ship if mid-flight
     ship:setLinearVelocity( 0, 0 )
     hitBoxS:setLinearVelocity( 0, 0 )
@@ -598,7 +571,6 @@ end
 local timer1 = timer.performWithDelay(delay,scoreUp,1)
 --show scene
 function scene:show( event )
-	GObool = false
    local sceneGroup = self.view
    local phase = event.phase
 
@@ -611,10 +583,7 @@ function scene:show( event )
 		--reset first pass every game
 		bIsFirstPass = true
    elseif ( phase == "did" ) then
-   	--start timer when scene is shown
-   	--timer1 = timer.performWithDelay(delay,rain,0)
-
-    local spawnEnemy = Runtime:addEventListener("enterFrame", enterFrame)
+    Runtime:addEventListener("enterFrame", enterFrame)
 		timer1 = timer.performWithDelay(delay,scoreUp,0)
    end
 end
@@ -626,23 +595,18 @@ function scene:hide( event )
    local phase = event.phase
 
    if ( phase == "will" ) then
-     --reset ship position
+    Runtime:removeEventListener( "enterFrame", enterFrame )
    	--cancel timer before moving to next scene
    	timer.cancel(timer1)
-
-    physics.pause()
-
-    for i, v in ipairs(enemies) do
-      if v.removeSelf then
-        v:removeSelf()
-      end
-    end
-    enemies = {}
-    transition.cancelAll()
-    print("hide will")
+    --physics.pause()
    elseif ( phase == "did" ) then
-     --physics.stop()
-     --transition.cancelAll()
+     transition.cancelAll()
+     for i, v in ipairs(enemies) do
+       if v.removeSelf then
+         v:removeSelf()
+       end
+     end
+     enemies = {}
    end
 end
 
@@ -657,19 +621,21 @@ scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
+
+--set ship hit box to destructable
 local function addHB( event )
-	--print(hitBoxS.name)
 	hitBoxS.name = "ship"
   hitBoxS.alpha = 0
-	--print(hitBoxS.name)
 end
+
+--set ship to invincible
 local function removeHB( event )
 	hitBoxS.name = "invinc"
   hitBoxS.alpha = 0.5
 	timer.performWithDelay( 5000, addHB,1)
 end
 
---Runtime:addEventListener("enterFrame", enterFrame)
+--
 local function onGlobalCollision( event )
     if event.phase == "began" then
     	if event.object1.name == "ship" then
@@ -683,5 +649,6 @@ local function onGlobalCollision( event )
     end
 end
 Runtime:addEventListener( "collision", onGlobalCollision )
+
 
 return scene
