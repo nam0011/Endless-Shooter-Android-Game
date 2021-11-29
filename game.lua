@@ -42,16 +42,39 @@ background.y = display.contentCenterY
 background:toBack()
 
 --left and right boundary
-local left = display.newRect(-40, 0, 1, display.contentHeight)
-left.anchorX = 0; left.anchorY = 0
-left.isVisible = false
+local left= display.newRect( -47,display.viewableContentHeight-50, 10, 10 )
+left.anchorX = -40; left.anchorY = display.viewableContentHeight-50
+left.alpha = 0
+physics.addBody(left, "dynamic", { friction=1000.0, mass=1000})
 left.name = "wall"
-local right = display.newRect(display.viewableContentWidth+40, 0, 1, display.contentHeight)
-right.anchorX = 0; right.anchorY = 0
-right.isVisible = false
+-- Local collision handling
+local function onLocalPreCollision( self, event )
+  local vx, vy = ship:getLinearVelocity()
+  if vx < 0 then
+    ship:setLinearVelocity( 0, 0 )
+    hitBoxS:setLinearVelocity( 0, 0 )
+    ship:setSequence("idle");
+  end
+end
+left.preCollision = onLocalPreCollision
+left:addEventListener( "preCollision" )
+
+local right= display.newRect( display.contentWidth+55,display.viewableContentHeight-50, 10, 10 )
+right.anchorX = display.contentWidth+40; right.anchorY = display.viewableContentHeight-50
+right.alpha = 0
+physics.addBody(right, "dynamic", { friction=1000.0, mass=1000})
 right.name = "wall"
-physics.addBody(left, "static", { isSensor=true } )
-physics.addBody(right, "static", { isSensor=true } )
+-- Local collision handling
+local function onLocalPreCollision( self, event )
+  local vx, vy = ship:getLinearVelocity()
+  if vx > 0 then
+    ship:setLinearVelocity( 0, 0 )
+    hitBoxS:setLinearVelocity( 0, 0 )
+    ship:setSequence("idle");
+  end
+end
+right.preCollision = onLocalPreCollision
+right:addEventListener( "preCollision" )
 
 --level 1 scrollable background
 local function addScrollableBg()
@@ -127,7 +150,7 @@ ship.yScale = 0.15;
 ship.isSensor = true
 ship:setSequence("idle");
 local offsetShipSize = {halfWidth = 10, halfHeight = 10}
-physics.addBody( ship, "kinematic", {box = offsetShipSize} )
+physics.addBody( ship, "dynamic", {box = offsetShipSize, bounce = 0} )
 --play animation based on selected frames
 ship:play();
 hitBoxS= display.newCircle( display.contentCenterX+25, display.viewableContentHeight-50, 12 )
@@ -394,7 +417,7 @@ function scene:create( event )
    local sceneGroup = self.view
 
 	 physics.start()
-	 physics.setGravity( 0, 3 )
+	 --physics.setGravity( 0, 0 )
 
 	 addScrollableBg()
 
@@ -451,7 +474,7 @@ function scene:create( event )
                   if ( buttonGroup.activeButton.ID == "left" ) then
                       ship:setLinearVelocity( -100, 0 )
                       hitBoxS:setLinearVelocity( -100, 0 )
-                      if((ship.x - ship.width * 0.001) < 0) then
+                      --[[if((ship.x - ship.width * 0.001) < 0) then
                         ship.x = ship.width * 0.001
                       elseif((ship.x + ship.width * 0.001) > display.contentWidth) then
                         ship.x = display.contentWidth - ship.width * 0.001
@@ -460,12 +483,12 @@ function scene:create( event )
                         hitBoxS.x = hitBoxS.width * 0.001
                       elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
                         hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
-                      end
+                      end]]
                       ship:setSequence("left");
                   elseif ( buttonGroup.activeButton.ID == "right" ) then
                       ship:setLinearVelocity( 100, 0 )
                       hitBoxS:setLinearVelocity( 100, 0 )
-                      if((ship.x - ship.width * 0.001) < 0) then
+                    --[[  if((ship.x - ship.width * 0.001) < 0) then
                         ship.x = ship.width * 0.001
                       elseif((ship.x + ship.width * 0.001) > display.contentWidth) then
                         ship.x = display.contentWidth - ship.width * 0.001
@@ -474,7 +497,7 @@ function scene:create( event )
                         hitBoxS.x = hitBoxS.width * 0.001
                       elseif((hitBoxS.x + hitBoxS.width * 0.001) > display.contentWidth) then
                         hitBoxS.x = display.contentWidth - hitBoxS.width * 0.001
-                      end
+                      end]]
                       ship:setSequence("right");
                   end
               end
@@ -637,15 +660,15 @@ end
 
 --
 local function onGlobalCollision( event )
-    if event.phase == "began" then
-    	if event.object1.name == "ship" then
+    if event.phase == "began" and event.object1.name == "ship" then
+
         if event.object2.name == "enemy" then
     		  gameOver()
     	  elseif event.object2.name == "pup" then
       		powerButton.alpha = 1
       		powerButton:addEventListener( "touch", removeHB )
-    	  end
-      end
+        end
+
     end
 end
 Runtime:addEventListener( "collision", onGlobalCollision )
