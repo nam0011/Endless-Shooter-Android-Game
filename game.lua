@@ -40,6 +40,8 @@ local background = display.newImageRect( "background.png",
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 background:toBack()
+background.alpha=1
+
 
 --left and right boundary
 local left= display.newRect( -47,display.viewableContentHeight-50, 10, 10 )
@@ -85,12 +87,14 @@ local function addScrollableBg()
     bg1.fill = bgImage
     bg1.x = display.contentCenterX
     bg1.y = display.contentCenterY
+    bg1.alpha = 0.3
 
     -- Add Second bg image
     bg2 = display.newRect(scene.view, 0, 0, (display.actualContentWidth), display.actualContentHeight)
     bg2.fill = bgImage
     bg2.x = display.contentCenterX
     bg2.y = display.contentCenterY - display.actualContentHeight
+    bg2.alpha = 0.3
 end
 
 --move background
@@ -381,9 +385,9 @@ function scene:create( event )
 	 addScrollableBg()
 
   --create button group
-  local buttonGroup = display.newGroup()
+  buttonGroup = display.newGroup()
 
-  local leftButton = display.newImageRect( buttonGroup, "leftButtonShape.png", 50, 50 )
+  leftButton = display.newImageRect( buttonGroup, "leftButtonShape.png", 50, 50 )
   leftButton.x, leftButton.y = 0, 270
   leftButton.canSlideOn = true
   leftButton.ID = "left"
@@ -392,7 +396,7 @@ function scene:create( event )
   --sceneGroup:insert(leftButton);
   buttonGroup:insert(leftButton);
 
-  local rightButton = display.newImageRect( buttonGroup, "rightButtonShape.png", 50, 50 )
+  rightButton = display.newImageRect( buttonGroup, "rightButtonShape.png", 50, 50 )
   rightButton.x, rightButton.y = 480, 270
   rightButton.canSlideOn = true
   rightButton.ID = "right"
@@ -489,7 +493,7 @@ function scene:create( event )
          powerButton.alpha = 0.5
        end
      end
-     powerButton:addEventListener( "touch", powerUp )
+  powerButton:addEventListener( "touch", powerUp )
 
   --initialize score value
 	scoreLabel.text = "Score: " .. score
@@ -597,6 +601,9 @@ function scene:show( event )
 
    if ( phase == "will" ) then
 		 physics.start()
+     addScrollableBg()
+     buttonGroup:toFront()
+     powerButton:toFront()
      -- Play the background music on channel 1, loop infinitely, and fade in
      bgMusicChannel = audio.play( sfx.bg, { channel=1, loops=-1, fadein=1000 } )
 		 score = 0
@@ -627,7 +634,7 @@ function scene:hide( event )
        end
      end
      enemies = {}
-     composer.removeScene( self.view )
+
    end
 end
 

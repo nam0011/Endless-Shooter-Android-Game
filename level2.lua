@@ -513,10 +513,6 @@ function scene:show( event )
      if (levelupGroup.text.isVisible) then
        timer.performWithDelay(2000,levelFade,1)
      end
-     --add temp invincible
-     --hitBoxS.name = "invinc"
-     --hitBoxS.alpha = 0.5
-     --timer.performWithDelay( 5000, addHB,1)
    end
 end
 
@@ -539,6 +535,7 @@ function scene:hide( event )
        end
      end
      enemies = {}
+     composer.removeScene( self.view )
    end
 end
 
