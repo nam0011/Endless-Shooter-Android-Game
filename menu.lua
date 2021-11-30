@@ -27,7 +27,7 @@ local function play (event)
    }
    score = 0
    ship.x = display.contentCenterX+25
-   hitBoxS.x = display.contentCenterX+15
+   hitBoxS.x = display.contentCenterX+10
    composer.gotoScene("game", ops)
 end
 
