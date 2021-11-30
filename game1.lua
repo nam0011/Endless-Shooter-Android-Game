@@ -1,3 +1,4 @@
+--  Group Project: CS371, Instructor: Dr Chung
 local composer = require("composer")
 local entity = require("entity")
 local pentagon = require("pentagon")
@@ -218,7 +219,7 @@ function scene:create(event)
     self.player:spawn(sg)
     self.player.shape.markX = self.player.x
     self.player.onDeath = function () audio.play(sfx.death); gameOver() end
-    self.player.onDamage = function (v) audio.play(sfx.crash) end
+    --self.player.onDamage = function (v) audio.play(sfx.crash) end
 
     self.scoreText =
     display.newEmbossedText(sg, "Score: 0", 210, 50,
