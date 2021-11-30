@@ -231,7 +231,7 @@ local function mainEnemy()
          pup.yScale = 0.55
          pup.x = math.random( display.contentWidth )
          pup.y = 0
-         pup.alpha = 0.7
+         pup.alpha = 1.0
 
       pup.isSensor = true
 
@@ -477,7 +477,7 @@ function scene:create( event )
 	   powerButton.x = 480
 	   powerButton.y = 217
 		 powerButton:toBack()
-		 powerButton.alpha = 0.5
+		 powerButton.alpha = 0.2
 		 sceneGroup:insert(powerButton);
      --set ship hit box to destructable
      local function addHB( event )
